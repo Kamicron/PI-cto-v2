@@ -10,8 +10,8 @@ import { Folder } from '../../folder/entities/folder.entity';
 
 @Entity()
 export class Photo {
-  @PrimaryGeneratedColumn()
-  id: number;
+  @PrimaryGeneratedColumn('uuid')
+  id: string;
 
   @Column()
   name: string;

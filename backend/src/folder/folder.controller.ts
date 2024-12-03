@@ -1,34 +1,35 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import {
+  Controller,
+  Post,
+  Body,
+  Get,
+  UseGuards,
+  Delete,
+  Param,
+} from '@nestjs/common';
 import { FolderService } from './folder.service';
-import { CreateFolderDto } from './dto/create-folder.dto';
-import { UpdateFolderDto } from './dto/update-folder.dto';
+import { AuthGuard } from '@nestjs/passport';
 
-@Controller('folder')
+@Controller('folders')
+@UseGuards(AuthGuard('jwt')) // Protéger toutes les routes par le token JWT
 export class FolderController {
   constructor(private readonly folderService: FolderService) {}
 
-  @Post()
-  create(@Body() createFolderDto: CreateFolderDto) {
-    return this.folderService.create(createFolderDto);
+  @Post('create')
+  async createFolder(
+    @Body('name') name: string,
+    @Body('parentId') parentId?: string,
+  ) {
+    return this.folderService.create(name, parentId);
   }
 
   @Get()
-  findAll() {
+  async getFolders() {
     return this.folderService.findAll();
   }
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.folderService.findOne(+id);
-  }
-
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateFolderDto: UpdateFolderDto) {
-    return this.folderService.update(+id, updateFolderDto);
-  }
-
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.folderService.remove(+id);
-  }
+  // @Delete(':id')
+  // async deleteFolder(@Param('id') id: number) {
+  //   return this.folderService.delete(id);
+  // }
 }

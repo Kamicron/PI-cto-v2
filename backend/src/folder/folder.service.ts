@@ -1,26 +1,31 @@
 import { Injectable } from '@nestjs/common';
-import { CreateFolderDto } from './dto/create-folder.dto';
-import { UpdateFolderDto } from './dto/update-folder.dto';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { Folder } from './entities/folder.entity';
 
 @Injectable()
 export class FolderService {
-  create(createFolderDto: CreateFolderDto) {
-    return 'This action adds a new folder';
+  constructor(
+    @InjectRepository(Folder)
+    private folderRepository: Repository<Folder>,
+  ) {}
+
+  async create(name: string, parentId?: string): Promise<Folder> {
+    const folder = new Folder();
+    folder.name = name;
+
+    if (parentId) {
+      const parent = await this.folderRepository.findOne({
+        where: { id: parentId },
+      });
+      if (!parent) throw new Error('Parent folder not found');
+      folder.parent = parent;
+    }
+
+    return this.folderRepository.save(folder);
   }
 
-  findAll() {
-    return `This action returns all folder`;
-  }
-
-  findOne(id: number) {
-    return `This action returns a #${id} folder`;
-  }
-
-  update(id: number, updateFolderDto: UpdateFolderDto) {
-    return `This action updates a #${id} folder`;
-  }
-
-  remove(id: number) {
-    return `This action removes a #${id} folder`;
+  async findAll(): Promise<Folder[]> {
+    return this.folderRepository.find({ relations: ['parent', 'children'] });
   }
 }
