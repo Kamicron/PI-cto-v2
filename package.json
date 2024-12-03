@@ -1,0 +1,14 @@
+{
+  "name": "PI-cto",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "scripts": {
+    "frontend": "cd frontend && yarn dev",
+    "backend": "cd backend && yarn start:dev",
+    "start": "concurrently \"yarn frontend\" \"yarn backend\""
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.0"
+  }
+}
