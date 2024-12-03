@@ -3,18 +3,23 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { ImagesModule } from './images/images.module';
 import { UserModule } from './user/user.module';
 import { FolderModule } from './folder/folder.module';
-import { PhotoModule } from './photo/photo.module';
-import { AuthService } from './auth/auth.service';
 import { AuthController } from './auth/auth.controller';
 import { AuthModule } from './auth/auth.module';
+import { ImagesModule } from './images/images.module';
+import { PhotosModule } from './photos/photos.module';
+import { ServeStaticModule } from '@nestjs/serve-static';
+import { join } from 'path';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
+    }),
+    ServeStaticModule.forRoot({
+      rootPath: join(__dirname, '..', 'uploads'),
+      serveRoot: '/uploads',
     }),
     TypeOrmModule.forRoot({
       type: 'mysql',
@@ -26,11 +31,11 @@ import { AuthModule } from './auth/auth.module';
       entities: [__dirname + '/**/*.entity{.ts,.js}'],
       synchronize: true,
     }),
-    ImagesModule,
     UserModule,
     FolderModule,
-    PhotoModule,
     AuthModule,
+    ImagesModule,
+    PhotosModule,
   ],
   controllers: [AppController, AuthController],
   providers: [AppService],

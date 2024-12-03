@@ -3,13 +3,13 @@ import { CreatePhotoDto } from './dto/create-photo.dto';
 import { UpdatePhotoDto } from './dto/update-photo.dto';
 
 @Injectable()
-export class PhotoService {
+export class PhotosService {
   create(createPhotoDto: CreatePhotoDto) {
     return 'This action adds a new photo';
   }
 
   findAll() {
-    return `This action returns all photo`;
+    return `This action returns all photos`;
   }
 
   findOne(id: number) {

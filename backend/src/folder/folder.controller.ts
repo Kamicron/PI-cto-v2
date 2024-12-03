@@ -18,9 +18,9 @@ export class FolderController {
   @Post('create')
   async createFolder(
     @Body('name') name: string,
-    @Body('parentId') parentId?: string,
+    @Body('parentId') parentId?: number,
   ) {
-    return this.folderService.create(name, parentId);
+    return this.folderService.create(name, parentId?.toString());
   }
 
   @Get()

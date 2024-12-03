@@ -3,30 +3,26 @@ import {
   PrimaryGeneratedColumn,
   Column,
   ManyToOne,
-  OneToMany,
   CreateDateColumn,
 } from 'typeorm';
-import { Photo } from '../../photos/entities/photo.entity';
+import { Folder } from '../../folder/entities/folder.entity';
 
 @Entity()
-export class Folder {
+export class Photo {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
   @Column()
   name: string;
 
+  @Column()
+  url: string;
+
   @ManyToOne(() => Folder, (folder) => folder.children, {
-    nullable: true,
+    nullable: false,
     onDelete: 'CASCADE',
   })
-  parent: Folder;
-
-  @OneToMany(() => Folder, (folder) => folder.parent)
-  children: Folder[];
-
-  @OneToMany(() => Photo, (photo) => photo.folder) // Relation avec Photo
-  photos: Photo[];
+  folder: Folder;
 
   @CreateDateColumn()
   createdAt: Date;

@@ -3,7 +3,6 @@ import {
   PrimaryGeneratedColumn,
   Column,
   ManyToOne,
-  JoinColumn,
   CreateDateColumn,
 } from 'typeorm';
 import { Folder } from '../../folder/entities/folder.entity';
@@ -17,10 +16,12 @@ export class Photo {
   name: string;
 
   @Column()
-  url: string; // Le chemin de stockage de l'image
+  url: string;
 
-  @ManyToOne(() => Folder, (folder) => folder.id, { nullable: true })
-  @JoinColumn({ name: 'folder_id' })
+  @ManyToOne(() => Folder, (folder) => folder.photos, {
+    nullable: false,
+    onDelete: 'CASCADE',
+  })
   folder: Folder;
 
   @CreateDateColumn()

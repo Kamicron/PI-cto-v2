@@ -1,34 +1,34 @@
 import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
-import { PhotoService } from './photo.service';
+import { PhotosService } from './photos.service';
 import { CreatePhotoDto } from './dto/create-photo.dto';
 import { UpdatePhotoDto } from './dto/update-photo.dto';
 
-@Controller('photo')
-export class PhotoController {
-  constructor(private readonly photoService: PhotoService) {}
+@Controller('photos')
+export class PhotosController {
+  constructor(private readonly photosService: PhotosService) {}
 
   @Post()
   create(@Body() createPhotoDto: CreatePhotoDto) {
-    return this.photoService.create(createPhotoDto);
+    return this.photosService.create(createPhotoDto);
   }
 
   @Get()
   findAll() {
-    return this.photoService.findAll();
+    return this.photosService.findAll();
   }
 
   @Get(':id')
   findOne(@Param('id') id: string) {
-    return this.photoService.findOne(+id);
+    return this.photosService.findOne(+id);
   }
 
   @Patch(':id')
   update(@Param('id') id: string, @Body() updatePhotoDto: UpdatePhotoDto) {
-    return this.photoService.update(+id, updatePhotoDto);
+    return this.photosService.update(+id, updatePhotoDto);
   }
 
   @Delete(':id')
   remove(@Param('id') id: string) {
-    return this.photoService.remove(+id);
+    return this.photosService.remove(+id);
   }
 }
