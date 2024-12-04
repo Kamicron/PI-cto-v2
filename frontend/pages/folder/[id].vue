@@ -1,7 +1,7 @@
 <template>
   <div class="folder" v-if="folder">
-    <div v-if="folder.name && !isModifyFolderName" style="display: flex;">
-      <h1>{{ folder.name }}</h1>
+    <div v-if="folderName && !isModifyFolderName" style="display: flex;">
+      <h1>{{ folderName }}</h1>
             
       <button @click="isModifyFolderName = true"><font-awesome-icon :icon="['fas', 'pen']" /></button>
     </div>
@@ -77,6 +77,7 @@ onMounted(async () => {
     const { data } = await $api.get(`/folders/${folderId}`);
     folder.value = data || { name: '', children: [], parent: null }; // Initialisation par défaut
     photos.value = data.photos || [];
+    folderName.value = data.name
   } catch (error) {
     console.error("Erreur lors de la récupération des données :", error);
   }
@@ -86,10 +87,10 @@ onMounted(async () => {
 // --- Async Func ---
 async function modifyFolderName() {
 console.log(folderName.value);
-const {data} = await $api.patch(`/folders/${folderId}/name`, {name: folderName.value})
-console.log({data});
-folderName.value = data.name
-
+const { data } = await $api.patch(`/folders/${folderId}/name`, {name: folderName.value})
+if(!data) return
+  folderName.value = data.name
+  
   isModifyFolderName.value = false
 }
 // ------------------
