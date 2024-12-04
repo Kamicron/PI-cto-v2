@@ -1,6 +1,7 @@
 import {
   Controller,
   Param,
+  Get,
   Post,
   UseInterceptors,
   UploadedFile,
@@ -48,5 +49,10 @@ export class ImagesController {
     @UploadedFile() file: Express.Multer.File,
   ) {
     return this.imagesService.uploadImage(folderId, file);
+  }
+
+  @Get(':photoId')
+  async getPhoto(@Param('photoId') photoId: string) {
+    return this.imagesService.getPhoto(photoId);
   }
 }

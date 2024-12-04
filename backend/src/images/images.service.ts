@@ -30,4 +30,17 @@ export class ImagesService {
 
     return this.photoRepository.save(photo);
   }
+
+  async getPhoto(photoId: string): Promise<Photo> {
+    const photo = await this.photoRepository.findOne({
+      where: { id: photoId },
+      relations: ['folder'], // Inclut le dossier associé
+    });
+
+    if (!photo) {
+      throw new Error(`Photo with ID ${photoId} not found`);
+    }
+
+    return photo;
+  }
 }
