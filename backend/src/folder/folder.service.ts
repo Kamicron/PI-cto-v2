@@ -43,6 +43,16 @@ export class FolderService {
     });
   }
   
+  async updateName(id: string, newName: string): Promise<Folder> {
+    const folder = await this.folderRepository.findOne({ where: { id } });
+  
+    if (!folder) {
+      throw new Error('Folder not found');
+    }
+  
+    folder.name = newName;
+    return this.folderRepository.save(folder);
+  }
   
   
   async findOneWithChildren(id: string): Promise<Folder> {

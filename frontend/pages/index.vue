@@ -6,7 +6,7 @@
       <button @click="isModifyFolderName = true"><font-awesome-icon :icon="['fas', 'pen']" /></button>
     </div>
     <div v-if="isModifyFolderName">
-      <input type="text">
+      <input type="text" v-model="folderName">
       <button @click="modifyFolderName">Modifier</button>
     </div>
 
@@ -54,6 +54,7 @@ const folderId = '495e09c7-e09d-481e-9c29-ae62e58fc25b';
 
 // ---- Reactive ----
 const folder = ref();
+const folderName = ref<string>('')
 const photos = ref([]);
 const isModifyFolderName = ref<boolean>(false)
 const { $api } = useNuxtApp();
@@ -78,6 +79,10 @@ onMounted(async () => {
 // --- Async Func ---
 
 async function modifyFolderName() {
+console.log(folderName.value);
+const {data} = await $api.patch(`/folders/${folderId}/name`, {name: folderName.value})
+console.log({data});
+folderName.value = data.name
 
   isModifyFolderName.value = false
 }
