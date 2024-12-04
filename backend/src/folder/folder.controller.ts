@@ -28,6 +28,17 @@ export class FolderController {
     return this.folderService.findAll();
   }
 
+  @Get(':id')
+  async getFolder(@Param('id') id: string) {
+    const folder = await this.folderService.findOne(id);
+
+    if (!folder) {
+      throw new Error(`Le dossier avec l'ID ${id} n'existe pas.`);
+    }
+
+    return folder;
+  }
+
   // @Delete(':id')
   // async deleteFolder(@Param('id') id: number) {
   //   return this.folderService.delete(id);

@@ -28,4 +28,13 @@ export class FolderService {
   async findAll(): Promise<Folder[]> {
     return this.folderRepository.find({ relations: ['parent', 'children'] });
   }
+
+  async findOne(id: string): Promise<Folder> {
+    return this.folderRepository.findOne({
+      where: { id },
+      relations: ['parent', 'children', 'photos'], // Inclure les photos dans la réponse
+    });
+  }
+  
+  
 }
