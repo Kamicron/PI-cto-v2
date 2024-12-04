@@ -18,6 +18,12 @@
         <p>{{ photo.name }}</p>
       </div>
     </div>
+
+    <h2>Uploader des images</h2>
+    <form @submit.prevent="uploadImages">
+      <input type="file" ref="fileInput" multiple />
+      <button type="submit">Uploader</button>
+    </form>
   </div>
   <p v-else>Chargement...</p>
 </template>
@@ -48,6 +54,7 @@ const folderId = route.params.id;
 const folder = ref({});
 const photos = ref([]);
 const { $api } = useNuxtApp();
+
 // ------------------
 
 // ---- Computed ----

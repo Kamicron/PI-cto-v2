@@ -3,6 +3,7 @@ import {
   Param,
   Get,
   Post,
+  Delete,
   UseInterceptors,
   UploadedFile,
 } from '@nestjs/common';
@@ -54,5 +55,10 @@ export class ImagesController {
   @Get(':photoId')
   async getPhoto(@Param('photoId') photoId: string) {
     return this.imagesService.getPhoto(photoId);
+  }
+
+  @Delete(':id')
+  async deleteImage(@Param('id') id: string) {
+    return this.imagesService.deleteImage(id);
   }
 }
