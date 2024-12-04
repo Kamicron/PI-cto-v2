@@ -1,6 +1,14 @@
 <template>
   <div class="folder" v-if="folder">
-    <h1>{{ folder.name }}</h1>
+    <div v-if="folder.name && !isModifyFolderName" style="display: flex;">
+      <h1>{{ folder.name }}</h1>
+            
+      <button @click="isModifyFolderName = true"><font-awesome-icon :icon="['fas', 'pen']" /></button>
+    </div>
+    <div v-if="isModifyFolderName">
+      <input type="text" v-model="folderName">
+      <button @click="modifyFolderName">Modifier</button>
+    </div>    
     <button v-if="folder.parent" @click="goToParentFolder">Retour au dossier parent</button>
 
     <h2>Sous-dossiers</h2>
@@ -51,8 +59,10 @@ const folderId = route.params.id;
 // ------------------
 
 // ---- Reactive ----
-const folder = ref({});
+const folder = ref();
 const photos = ref([]);
+const folderName = ref<string>('')
+const isModifyFolderName = ref<boolean>(false)
 const { $api } = useNuxtApp();
 
 // ------------------
@@ -74,7 +84,14 @@ onMounted(async () => {
 // ------------------
 
 // --- Async Func ---
+async function modifyFolderName() {
+console.log(folderName.value);
+const {data} = await $api.patch(`/folders/${folderId}/name`, {name: folderName.value})
+console.log({data});
+folderName.value = data.name
 
+  isModifyFolderName.value = false
+}
 // ------------------
 
 // ---- Function ----
