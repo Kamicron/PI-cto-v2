@@ -1,6 +1,17 @@
 <template>
-  <div class="folder">
+  <div class="folder" v-if="folder">
     <h1>{{ folder.name }}</h1>
+    <button v-if="folder.parent" @click="goToParentFolder">Retour au dossier parent</button>
+
+    <h2>Sous-dossiers</h2>
+    <ul v-if="folder.children && folder.children.length">
+      <li v-for="child in folder.children" :key="child.id">
+        <NuxtLink :to="`/folder/${child.id}`">{{ child.name }}</NuxtLink>
+      </li>
+    </ul>
+    <p v-else>Aucun sous-dossier.</p>
+
+    <h2>Photos</h2>
     <div class="folder__images">
       <div v-for="photo in photos" :key="photo.id" class="folder__image">
         <img :src="`http://localhost:5000/uploads/${photo.url}`" :alt="photo.name" />
@@ -8,13 +19,15 @@
       </div>
     </div>
   </div>
+  <p v-else>Chargement...</p>
 </template>
+
 
 <script setup lang='ts'>
 // ----- Import -----
-import { ref, onMounted } from 'vue';
-import { useRoute } from 'vue-router';
-import { useNuxtApp } from '#app';
+import { ref, onMounted } from "vue";
+import { useRoute, useRouter } from "vue-router";
+import { useNuxtApp } from "#app";
 // ------------------
 
 // ------ Type ------
@@ -27,6 +40,7 @@ import { useNuxtApp } from '#app';
 
 // ------ Const -----
 const route = useRoute();
+const router = useRouter();
 const folderId = route.params.id;
 // ------------------
 
@@ -44,14 +58,10 @@ const { $api } = useNuxtApp();
 onMounted(async () => {
   try {
     const { data } = await $api.get(`/folders/${folderId}`);
-    folder.value = data;
-    photos.value = data.photos;
-    console.log('data', data)
-    console.log(' folder.value',  folder.value)
-
-    console.log(' photos.value',  photos.value)
+    folder.value = data || { name: '', children: [], parent: null }; // Initialisation par défaut
+    photos.value = data.photos || [];
   } catch (error) {
-    console.error('Erreur lors de la récupération des images :', error);
+    console.error("Erreur lors de la récupération des données :", error);
   }
 });
 // ------------------
@@ -61,7 +71,11 @@ onMounted(async () => {
 // ------------------
 
 // ---- Function ----
-
+function goToParentFolder() {
+  if (folder.value.parent) {
+    router.push(`/folder/${folder.value.parent.id}`);
+  }
+}
 // ------------------
 
 // ------ Watch -----
