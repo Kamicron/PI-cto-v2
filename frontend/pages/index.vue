@@ -1,7 +1,16 @@
 <template>
   <div class="folder" v-if="folder">
-    <h1>{{ folder.name }}</h1>
-    <button v-if="folder.parent" @click="goToParentFolder">Retour au dossier parent</button>
+    <div v-if="folder.name && !isModifyFolderName" style="display: flex;">
+      <h1>{{ folder.name }}</h1>
+            
+      <button @click="isModifyFolderName = true"><font-awesome-icon :icon="['fas', 'pen']" /></button>
+    </div>
+    <div v-if="isModifyFolderName">
+      <input type="text">
+      <button @click="modifyFolderName">Modifier</button>
+    </div>
+
+      <button v-if="folder.parent" @click="goToParentFolder">Retour au dossier parent</button>
 
     <h2>Sous-dossiers</h2>
     <ul v-if="folder.children && folder.children.length">
@@ -44,8 +53,9 @@ const folderId = '495e09c7-e09d-481e-9c29-ae62e58fc25b';
 // ------------------
 
 // ---- Reactive ----
-const folder = ref({});
+const folder = ref();
 const photos = ref([]);
+const isModifyFolderName = ref<boolean>(false)
 const { $api } = useNuxtApp();
 // ------------------
 
@@ -66,6 +76,11 @@ onMounted(async () => {
 // ------------------
 
 // --- Async Func ---
+
+async function modifyFolderName() {
+
+  isModifyFolderName.value = false
+}
 
 // ------------------
 
