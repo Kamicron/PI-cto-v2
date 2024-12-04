@@ -2,7 +2,7 @@
   <div class="folder" v-if="folder">
     <h1>{{ folder.name }}</h1>
     <button v-if="folder.parent" @click="goToParentFolder">Retour au dossier parent</button>
-
+<!-- tamer -->
     <h2>Sous-dossiers</h2>
     <ul v-if="folder.children && folder.children.length">
       <li v-for="child in folder.children" :key="child.id">
