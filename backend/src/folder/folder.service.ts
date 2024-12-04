@@ -43,7 +43,7 @@ export class FolderService {
     });
   }
   
-  async updateName(id: string, newName: string): Promise<Folder> {
+  async updateName(id: string, newName: string): Promise<Folder> {    
     const folder = await this.folderRepository.findOne({ where: { id } });
   
     if (!folder) {

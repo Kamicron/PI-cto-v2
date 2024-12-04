@@ -5,7 +5,7 @@ import {
   Get,
   UseGuards,
   Delete,
-  Param, Patch, NotFoundException
+  Param, Patch, NotFoundException, BadRequestException
 } from '@nestjs/common';
 import { FolderService } from './folder.service';
 import { AuthGuard } from '@nestjs/passport';
@@ -41,19 +41,25 @@ export class FolderController {
   }
 
 
-@Patch(':id/name')
-async updateFolderName(
-  @Param('id') id: string,
-  @Body('name') name: string,
-) {
-  const updatedFolder = await this.folderService.updateName(id, name);
-
-  if (!updatedFolder) {
-    throw new NotFoundException(`Le dossier avec l'ID ${id} n'existe pas.`);
+  @Patch(':id/name')
+  async updateFolderName(
+    @Param('id') id: string,
+    @Body('name') name: string,
+  ) {
+    if (!name || name.trim().length < 3) {
+      throw new BadRequestException(
+        'Le nom du dossier doit contenir au moins 3 caractères.',
+      );
+    }
+    
+    const updatedFolder = await this.folderService.updateName(id, name.trim());
+  
+    if (!updatedFolder) {
+      throw new NotFoundException(`Le dossier avec l'ID ${id} n'existe pas.`);
+    }
+  
+    return updatedFolder;
   }
-
-  return updatedFolder;
-}
 
 
   // @Get()

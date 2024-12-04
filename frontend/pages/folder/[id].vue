@@ -11,6 +11,8 @@
     </div>    
     <button v-if="folder.parent" @click="goToParentFolder">Retour au dossier parent</button>
 
+    <p>{{ errorMessage }}</p>
+
     <h2>Sous-dossiers</h2>
     <ul v-if="folder.children && folder.children.length">
       <li v-for="child in folder.children" :key="child.id">
@@ -62,6 +64,8 @@ const folderId = route.params.id;
 const folder = ref();
 const photos = ref([]);
 const folderName = ref<string>('')
+  const errorMessage = ref<string>('')
+  
 const isModifyFolderName = ref<boolean>(false)
 const { $api } = useNuxtApp();
 
@@ -86,13 +90,27 @@ onMounted(async () => {
 
 // --- Async Func ---
 async function modifyFolderName() {
-console.log(folderName.value);
-const { data } = await $api.patch(`/folders/${folderId}/name`, {name: folderName.value})
-if(!data) return
-  folderName.value = data.name
-  
-  isModifyFolderName.value = false
+  try {    
+    const { data } = await $api.patch(`/folders/${folderId}/name`, { name: folderName.value })
+
+    if (!data) {
+      errorMessage.value = 'Une erreur est survenue, aucune donnée retournée.'
+      return
+    }
+
+    folderName.value = data.name
+    
+    isModifyFolderName.value = false
+
+  } catch (error: any) {
+    if (error.response && error.response.data && error.response.data.message) {
+      errorMessage.value = error.response.data.message
+    } else {
+      errorMessage.value = 'Une erreur inconnue est survenue.'
+    }
+  }
 }
+
 // ------------------
 
 // ---- Function ----
