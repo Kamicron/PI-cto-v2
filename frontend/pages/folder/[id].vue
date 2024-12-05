@@ -2,13 +2,13 @@
   <div class="folder" v-if="folder">
     <div v-if="folderName && !isModifyFolderName" style="display: flex;">
       <h1>{{ folderName }}</h1>
-            
+
       <button @click="isModifyFolderName = true"><font-awesome-icon :icon="['fas', 'pen']" /></button>
     </div>
     <div v-if="isModifyFolderName">
       <input type="text" v-model="folderName">
       <button @click="modifyFolderName">Modifier</button>
-    </div>    
+    </div>
     <button v-if="folder.parent" @click="goToParentFolder">Retour au dossier parent</button>
 
     <p>{{ errorMessage }}</p>
@@ -23,10 +23,8 @@
 
     <h2>Photos</h2>
     <div class="folder__images">
-      <div v-for="photo in photos" :key="photo.id" class="folder__image">
-        <img :src="`http://localhost:5000/uploads/${photo.url}`" :alt="photo.name" />
-        <p>{{ photo.name }}</p>
-      </div>
+      <ImageCard v-for="photo in photos" :key="photo.id" :src="`http://localhost:5000/uploads/${photo.url}`"
+        :alt="photo.name" :name="photo.name" @delete="deletePhoto(photo.id)" />
     </div>
 
     <h2>Uploader des images</h2>
@@ -34,6 +32,7 @@
       <input type="file" ref="fileInput" multiple />
       <button type="submit">Uploader</button>
     </form>
+
   </div>
   <p v-else>Chargement...</p>
 </template>
@@ -64,8 +63,8 @@ const folderId = route.params.id;
 const folder = ref();
 const photos = ref([]);
 const folderName = ref<string>('')
-  const errorMessage = ref<string>('')
-  
+const errorMessage = ref<string>('')
+
 const isModifyFolderName = ref<boolean>(false)
 const { $api } = useNuxtApp();
 
@@ -90,7 +89,7 @@ onMounted(async () => {
 
 // --- Async Func ---
 async function modifyFolderName() {
-  try {    
+  try {
     const { data } = await $api.patch(`/folders/${folderId}/name`, { name: folderName.value })
 
     if (!data) {
@@ -99,7 +98,7 @@ async function modifyFolderName() {
     }
 
     folderName.value = data.name
-    
+
     isModifyFolderName.value = false
 
   } catch (error: any) {
@@ -108,6 +107,57 @@ async function modifyFolderName() {
     } else {
       errorMessage.value = 'Une erreur inconnue est survenue.'
     }
+  }
+}
+
+async function deletePhoto(photoId: string) {
+  try {
+    const { data } = await $api.delete(`/images/${photoId}`);
+
+    if (data.success) {
+      photos.value = photos.value.filter(photo => photo.id !== photoId);
+    } else {
+      console.error('Erreur lors de la suppression de l\'image.');
+    }
+  } catch (error) {
+    console.error('Erreur lors de la suppression de l\'image :', error);
+  }
+}
+
+async function fetchPhotos() {
+  try {
+    const { data } = await $api.get(`/folders/${folderId}`);
+    photos.value = data.photos || [];
+  } catch (error) {
+    console.error("Erreur lors de la récupération des photos :", error);
+  }
+}
+
+// Ajoutez fetchPhotos après l'upload
+async function uploadImages() {
+  try {
+    const inputElement = document.querySelector('input[type="file"]') as HTMLInputElement;
+
+    if (!inputElement || !inputElement.files || inputElement.files.length === 0) {
+      errorMessage.value = "Veuillez sélectionner un ou plusieurs fichiers.";
+      return;
+    }
+
+    const formData = new FormData();
+
+    for (const file of inputElement.files) {
+      formData.append('file', file);
+    }
+
+    await $api.post(`/images/${folderId}/upload`, formData);
+
+    // Recharge les photos après upload
+    await fetchPhotos();
+
+    inputElement.value = ""; // Réinitialiser le champ de fichier
+  } catch (error) {
+    console.error("Erreur lors de l'upload des images :", error);
+    errorMessage.value = "Une erreur est survenue lors de l'upload des images.";
   }
 }
 
