@@ -46,7 +46,7 @@ export class ImagesService {
     return photo;
   }
 
-  async deleteImage(id: string) {
+  async deleteImage(id: string): Promise<{ success: boolean }> {
     const photo = await this.photoRepository.findOne({ where: { id } });
 
     if (!photo) {
@@ -55,11 +55,19 @@ export class ImagesService {
 
     // Supprimer le fichier physique
     const filePath = join(__dirname, '../../uploads', photo.url);
-    await unlink(filePath).catch((err) => {
-      console.error('Erreur lors de la suppression du fichier :', err);
-    });
+    try {
+      await unlink(filePath);
+    } catch (error) {
+      console.error(
+        'Erreur lors de la suppression du fichier :',
+        error.message,
+      );
+      throw new Error('Erreur lors de la suppression du fichier physique.');
+    }
 
     // Supprimer l'entrée de la base de données
-    return this.photoRepository.delete(id);
+    await this.photoRepository.delete(id);
+
+    return { success: true };
   }
 }
