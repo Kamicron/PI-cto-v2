@@ -15,5 +15,11 @@
     "eslint": "^9.16.0",
     "eslint-plugin-prettier": "^5.2.1",
     "prettier": "^3.4.1"
+  },
+  "dependencies": {
+    "@fortawesome/fontawesome-svg-core": "^6.7.1",
+    "@fortawesome/free-brands-svg-icons": "^6.7.1",
+    "@fortawesome/free-solid-svg-icons": "^6.7.1",
+    "@fortawesome/vue-fontawesome": "^3.0.8"
   }
 }

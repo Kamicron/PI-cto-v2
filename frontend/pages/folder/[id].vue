@@ -1,7 +1,17 @@
 <template>
   <div class="folder" v-if="folder">
-    <h1>{{ folder.name }}</h1>
+    <div v-if="folderName && !isModifyFolderName" style="display: flex;">
+      <h1>{{ folderName }}</h1>
+            
+      <button @click="isModifyFolderName = true"><font-awesome-icon :icon="['fas', 'pen']" /></button>
+    </div>
+    <div v-if="isModifyFolderName">
+      <input type="text" v-model="folderName">
+      <button @click="modifyFolderName">Modifier</button>
+    </div>    
     <button v-if="folder.parent" @click="goToParentFolder">Retour au dossier parent</button>
+
+    <p>{{ errorMessage }}</p>
 
     <h2>Sous-dossiers</h2>
     <ul v-if="folder.children && folder.children.length">
@@ -51,8 +61,12 @@ const folderId = route.params.id;
 // ------------------
 
 // ---- Reactive ----
-const folder = ref({});
+const folder = ref();
 const photos = ref([]);
+const folderName = ref<string>('')
+  const errorMessage = ref<string>('')
+  
+const isModifyFolderName = ref<boolean>(false)
 const { $api } = useNuxtApp();
 
 // ------------------
@@ -67,6 +81,7 @@ onMounted(async () => {
     const { data } = await $api.get(`/folders/${folderId}`);
     folder.value = data || { name: '', children: [], parent: null }; // Initialisation par défaut
     photos.value = data.photos || [];
+    folderName.value = data.name
   } catch (error) {
     console.error("Erreur lors de la récupération des données :", error);
   }
@@ -74,6 +89,27 @@ onMounted(async () => {
 // ------------------
 
 // --- Async Func ---
+async function modifyFolderName() {
+  try {    
+    const { data } = await $api.patch(`/folders/${folderId}/name`, { name: folderName.value })
+
+    if (!data) {
+      errorMessage.value = 'Une erreur est survenue, aucune donnée retournée.'
+      return
+    }
+
+    folderName.value = data.name
+    
+    isModifyFolderName.value = false
+
+  } catch (error: any) {
+    if (error.response && error.response.data && error.response.data.message) {
+      errorMessage.value = error.response.data.message
+    } else {
+      errorMessage.value = 'Une erreur inconnue est survenue.'
+    }
+  }
+}
 
 // ------------------
 
