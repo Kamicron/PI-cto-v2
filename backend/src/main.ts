@@ -6,9 +6,14 @@ async function bootstrap() {
 
   // Configuration CORS
   app.enableCors({
-    origin: 'http://localhost:3000', // Autorise uniquement le frontend
-    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE', // Méthodes autorisées
-    credentials: true, // Si tu utilises des cookies ou des sessions
+    origin: [
+      'http://pi-cto.top',
+      'http://92.141.130.187',
+      'http://localhost:3000',
+    ],
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+    credentials: true,
+    allowedHeaders: ['Content-Type', 'Authorization'],
   });
 
   await app.listen(5000);
