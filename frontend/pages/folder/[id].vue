@@ -24,7 +24,7 @@
     <h2>Photos</h2>
     <div class="folder__images">
       <div v-for="photo in photos" :key="photo.id" class="folder__image">
-        <img :src="`http://localhost:5000/uploads/${photo.url}`" :alt="photo.name" />
+        <img :src="`${apiUrl}/uploads/${photo.url}`" :alt="photo.name" />
         <p>{{ photo.name }}</p>
       </div>
     </div>
@@ -44,6 +44,7 @@
 import { ref, onMounted } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { useNuxtApp } from "#app";
+import { useRuntimeConfig } from "nuxt/app";
 // ------------------
 
 // ------ Type ------
@@ -55,14 +56,17 @@ import { useNuxtApp } from "#app";
 // ------------------
 
 // ------ Const -----
-const route = useRoute();
-const router = useRouter();
-const folderId = route.params.id;
+const route = useRoute()
+const router = useRouter()
+const folderId = route.params.id
+const { public: config } = useRuntimeConfig()
+const apiUrl = config.apiBaseUrl;
+
 // ------------------
 
 // ---- Reactive ----
-const folder = ref();
-const photos = ref([]);
+const folder = ref()
+const photos = ref([])
 const folderName = ref<string>('')
   const errorMessage = ref<string>('')
   
@@ -78,12 +82,12 @@ const { $api } = useNuxtApp();
 // ------ Hooks -----
 onMounted(async () => {
   try {
-    const { data } = await $api.get(`/folders/${folderId}`);
-    folder.value = data || { name: '', children: [], parent: null }; // Initialisation par défaut
-    photos.value = data.photos || [];
+    const { data } = await $api.get(`/folders/${folderId}`)
+    folder.value = data || { name: '', children: [], parent: null }
+    photos.value = data.photos || []
     folderName.value = data.name
   } catch (error) {
-    console.error("Erreur lors de la récupération des données :", error);
+    console.error("Erreur lors de la récupération des données :", error)
   }
 });
 // ------------------
@@ -111,12 +115,38 @@ async function modifyFolderName() {
   }
 }
 
+async function uploadImages() {
+  try {
+    const inputElement = document.querySelector('input[type="file"]') as HTMLInputElement;
+
+    if (!inputElement || !inputElement.files || inputElement.files.length === 0) {
+      errorMessage.value = "Veuillez sélectionner un ou plusieurs fichiers.";
+      return;
+    }
+
+    const formData = new FormData();
+
+    for (const file of inputElement.files) {
+      formData.append('file', file);
+    }
+
+    await $api.post(`/images/${folderId}/upload`, formData);
+
+    // Recharge les photos après upload
+    await fetchPhotos();
+
+    inputElement.value = ""; // Réinitialiser le champ de fichier
+  } catch (error) {
+    console.error("Erreur lors de l'upload des images :", error);
+    errorMessage.value = "Une erreur est survenue lors de l'upload des images.";
+  }
+}
 // ------------------
 
 // ---- Function ----
 function goToParentFolder() {
   if (folder.value.parent) {
-    router.push(`/folder/${folder.value.parent.id}`);
+    router.push(`/folder/${folder.value.parent.id}`)
   }
 }
 // ------------------
