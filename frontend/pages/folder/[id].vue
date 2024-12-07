@@ -2,15 +2,17 @@
   <div class="folder" v-if="folder">
     <div v-if="folderName && !isModifyFolderName" style="display: flex;">
       <h1>{{ folderName }}</h1>
-            
+
       <button @click="isModifyFolderName = true"><font-awesome-icon :icon="['fas', 'pen']" /></button>
     </div>
     <div v-if="isModifyFolderName">
       <input type="text" v-model="folderName">
       <button @click="modifyFolderName">Modifier</button>
-    </div>    
+    </div>
     <button v-if="folder.parent" @click="goToParentFolder">Retour au dossier parent</button>
 
+
+    <button @click="openModal"><font-awesome-icon :icon="['fas', 'folder-plus']" /></button>
     <p>{{ errorMessage }}</p>
 
     <h2>Sous-dossiers</h2>
@@ -36,12 +38,29 @@
     </form>
   </div>
   <p v-else>Chargement...</p>
+
+  <modal :isOpen="isModalOpen" maxWidth="800px" title="Ajouter un nouveau dossier" @close="isModalOpen = false">
+    <div class="addFolder">
+      <div class="addFolder__input">
+        <label>Nom du dossier</label>
+        <input v-model="nameFolder" type="text" name="nameFolder">
+      </div>
+      <div class="addFolder__button">
+        <button @click="saveFolder">
+          <font-awesome-icon :icon="['far', 'floppy-disk']" /> Sauvegarder
+        </button>
+        
+       <button @click="isModalOpen=false"> 
+        <font-awesome-icon :icon="['fas', 'xmark']" /> Annuler</button>
+      </div>
+    </div>
+  </modal>
 </template>
 
 
 <script setup lang='ts'>
 // ----- Import -----
-import { ref, onMounted } from "vue";
+import { ref, onMounted, watch } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { useNuxtApp } from "#app";
 import { useRuntimeConfig } from "nuxt/app";
@@ -61,15 +80,16 @@ const router = useRouter()
 const folderId = route.params.id
 const { public: config } = useRuntimeConfig()
 const apiUrl = config.apiBaseUrl;
-
+const isModalOpen = ref<boolean>(false)
 // ------------------
 
 // ---- Reactive ----
 const folder = ref()
 const photos = ref([])
 const folderName = ref<string>('')
-  const errorMessage = ref<string>('')
-  
+const errorMessage = ref<string>('')
+const nameFolder = ref<string>('')
+
 const isModifyFolderName = ref<boolean>(false)
 const { $api } = useNuxtApp();
 
@@ -81,6 +101,12 @@ const { $api } = useNuxtApp();
 
 // ------ Hooks -----
 onMounted(async () => {
+  fetchFolder()
+});
+// ------------------
+
+// --- Async Func ---
+async function fetchFolder() {
   try {
     const { data } = await $api.get(`/folders/${folderId}`)
     folder.value = data || { name: '', children: [], parent: null }
@@ -89,12 +115,11 @@ onMounted(async () => {
   } catch (error) {
     console.error("Erreur lors de la récupération des données :", error)
   }
-});
-// ------------------
+}
 
-// --- Async Func ---
+
 async function modifyFolderName() {
-  try {    
+  try {
     const { data } = await $api.patch(`/folders/${folderId}/name`, { name: folderName.value })
 
     if (!data) {
@@ -103,7 +128,7 @@ async function modifyFolderName() {
     }
 
     folderName.value = data.name
-    
+
     isModifyFolderName.value = false
 
   } catch (error: any) {
@@ -112,6 +137,26 @@ async function modifyFolderName() {
     } else {
       errorMessage.value = 'Une erreur inconnue est survenue.'
     }
+  }
+}
+
+async function createFolder() {
+  if (!nameFolder.value || nameFolder.value.trim().length < 3) {
+    errorMessage.value = "Le nom du dossier doit contenir au moins 3 caractères.";
+    return;
+  }
+
+  try {
+    const { data } = await $api.post("/folders/create", {
+      name: nameFolder.value.trim(),
+      parentId: folderId,
+    });
+
+    nameFolder.value = ""
+
+    fetchFolder()
+  } catch (error: any) {
+    errorMessage.value = error.response?.data?.message || "Une erreur est survenue.";
   }
 }
 
@@ -149,10 +194,24 @@ function goToParentFolder() {
     router.push(`/folder/${folder.value.parent.id}`)
   }
 }
+
+function openModal() {
+  isModalOpen.value = true
+}
+
+function saveFolder() {
+  createFolder()
+  isModalOpen.value = false
+}
 // ------------------
 
 // ------ Watch -----
-
+watch(
+  () => nameFolder.value,
+  (newVal) => {
+    console.log('newVal:', newVal)
+  }
+);
 // ------------------
 
 </script>
@@ -174,5 +233,25 @@ function goToParentFolder() {
       border-radius: 8px;
     }
   }
+}
+
+.addFolder {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+
+  &__input {
+    display: flex;
+    flex-direction: column;
+    gap:5px
+  }
+
+  &__button {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    align-items: center;
+  }
+
 }
 </style>
