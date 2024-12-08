@@ -38,14 +38,11 @@
 
 <script setup lang='ts'>
 // ----- Import -----
-import { ref, onMounted } from "vue";
-import { useRoute, useRouter } from "vue-router";
+import { ref  } from "vue";
+import { useRouter } from "vue-router";
 import { useNuxtApp } from "#app";
-import { watchEffect } from "vue";
 import { useAuthStore } from "@/stores/auth";
 import { watch } from "vue";
-import { computed } from "vue";
-
 
 // ------------------
 
@@ -78,15 +75,7 @@ const isLoggedIn = ref(authStore.isLoggedIn);
 // ------------------
 
 // ------ Hooks -----
-// onMounted(async () => {
-//   try {
-//     const { data } = await $api.get(`/folders/${folderId}`);
-//     folder.value = data || { name: '', children: [], parent: null }; // Initialisation par défaut
-//     photos.value = data.photos || [];
-//   } catch (error) {
-//     console.error("Erreur lors de la récupération des données :", error);
-//   }
-// });
+
 // ------------------
 
 // --- Async Func ---
@@ -112,10 +101,16 @@ function goToParentFolder() {
 
 // ------ Watch -----
 watch(
-  () => authStore.isLoggedIn, // Observe si l'utilisateur est connecté
+  () => authStore.isLoggedIn,
   async (isLoggedIn) => {
+    console.log('watch');
+    
+    console.log('isLoggedIn', isLoggedIn);
     if (isLoggedIn) {
+      
       try {
+        console.log('folderId', folderId);
+        
         const { data } = await $api.get(`/folders/${folderId}`, {
           headers: { Authorization: `Bearer ${authStore.token}` },
         });
@@ -129,7 +124,7 @@ watch(
       photos.value = [];
     }
   },
-  { immediate: true } // Exécute immédiatement à l'initialisation
+  { immediate: true } 
 );
 
 

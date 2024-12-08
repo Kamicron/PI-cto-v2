@@ -1,6 +1,6 @@
 <template>
-  <div class="pi-button" :style="{ backgroundColor: bgColor }" tabindex="0">
-    <button class="button" >
+  <div class="pi-button" :class="{ 'pi-button--tiny': tiny }" :style="{ backgroundColor: bgColor }" tabindex="0">
+    <button class="button">
       <font-awesome-icon class='button__icon' :icon="icon" />
       <p class='button__label'>{{ label }}</p>
     </button>
@@ -21,7 +21,8 @@
 defineProps({
   label: { type: String, default: 'Boutton' },
   icon: { type: Array, default: () => [] },
-  bgColor: {type: String, default: '#3d556d'}
+  bgColor: { type: String, default: '#3d556d' },
+  tiny: { type: Boolean, default: false }
 });
 
 // ------------------
@@ -62,14 +63,18 @@ defineProps({
   cursor: pointer;
   width: fit-content;
   border-radius: $border-radius;
+  transition: background-color 0.3s ease;
+  box-shadow: $box-shadow;
+
+  :hover {
+    background-color: rgba(255, 255, 255, 0.35);
+  }
 
   .button {
     all: unset;
     display: flex;
     align-items: center;
     justify-content: center;
-
-    color: #3f556d;
 
     &__icon {
       background-color: rgba(0, 0, 0, 0.30);
@@ -78,8 +83,6 @@ defineProps({
       padding: 15px;
       border-radius: 10px 0 10px 0;
       color: $white-color;
-
-
     }
 
     &__label {
@@ -92,6 +95,22 @@ defineProps({
       letter-spacing: 2px;
       color: $white-color;
 
+    }
+  }
+
+  &--tiny {
+    .button {
+      &__icon {
+        width: 15px;
+        height: 15px;
+        padding: 8px;
+      }
+
+      &__label {
+        padding: 8px;
+        font-size: 0.8rem;
+        letter-spacing: 1px;
+      }
     }
   }
 }

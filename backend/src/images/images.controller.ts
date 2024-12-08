@@ -59,6 +59,13 @@ export class ImagesController {
 
   @Delete(':id')
   async deleteImage(@Param('id') id: string) {
-    return this.imagesService.deleteImage(id);
+    try {
+      return await this.imagesService.deleteImage(id);
+    } catch (error) {
+      throw new Error(
+        error.message ||
+          "Une erreur est survenue lors de la suppression de l'image.",
+      );
+    }
   }
 }
