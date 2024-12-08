@@ -3,7 +3,7 @@
     <div class="upload-photo__dropzone" @dragover.prevent="isDragging = true" @dragleave.prevent="isDragging = false"
       @drop.prevent="handleDrop" :class="{ 'upload-photo__dropzone--active': isDragging }">
       <p>Déposez vos fichiers ici ou</p>
-      <button type="button" @click="triggerFilePicker">Parcourir</button>
+      <pi-button label="parcourir" @click="triggerFilePicker" :icon="['fas', 'magnifying-glass']" /> 
       <input ref="fileInput" type="file" class="upload-photo__file-input" multiple @change="handleFileSelect" />
     </div>
 
@@ -14,14 +14,19 @@
           <img v-if="file.type.startsWith('image/')" :src="file.preview" :alt="file.name"
             class="upload-photo__preview-img" />
           <p>{{ file.name }}</p>
-          <button @click="removeFile(index)">Supprimer</button>
+          <pi-button @click="removeFile(index)" label="Supprimer" :bg-color="'#dc3545'" :icon="['fas', 'trash-can']"/>
         </li>
       </ul>
     </div>
 
-    <button class="upload-photo__submit" :disabled="isUploading || !files.length" @click="uploadFiles">
+
+    <!-- <button class="upload-photo__submit" :disabled="isUploading || !files.length" @click="uploadFiles">
       {{ isUploading ? "Téléversement en cours..." : "Téléverser" }}
-    </button>
+    </button> -->
+
+    <pi-button class="upload-photo__submit" :label="isUploading ? 'Téléversement en cours...' : 'Téléverser'"
+      :icon="['fas', 'upload']" :bgColor="isUploading || !files.length ? '#a0a0a0' : '#3f556d'" @click="uploadFiles" />
+
 
     <p v-if="errorMessage" class="upload-photo__error">{{ errorMessage }}</p>
   </div>
@@ -147,15 +152,20 @@ function removeFile(index: number) {
 
 <style lang="scss" scoped>
 .upload-photo {
-  border: 1px solid black;
+  border-radius: $border-radius;
+
+  border: 1px solid $gray-medium-color;
   padding: 20px;
 
   &__dropzone {
-    border: 2px dashed #ccc;
+    border: 2px dashed $gray-light-color;
+    border-radius: $border-radius;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
     padding: 20px;
     text-align: center;
     margin-bottom: 16px;
-    border-radius: 8px;
     cursor: pointer;
     transition: all 0.3s;
 
@@ -189,16 +199,12 @@ function removeFile(index: number) {
   }
 
   &__submit {
-    padding: 10px 16px;
-    background-color: #007bff;
-    color: white;
     border: none;
     border-radius: 4px;
     cursor: pointer;
     transition: background-color 0.3s;
 
     &:disabled {
-      background-color: #ccc;
       cursor: not-allowed;
     }
   }

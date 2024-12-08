@@ -1,11 +1,12 @@
 <template>
-  <div class='pi-button' tabindex="0">
+  <div class="pi-button" :style="{ backgroundColor: bgColor }" tabindex="0">
     <button class="button" >
       <font-awesome-icon class='button__icon' :icon="icon" />
       <p class='button__label'>{{ label }}</p>
     </button>
   </div>
 </template>
+
 
 <script setup lang='ts'>
 // ----- Import -----
@@ -19,7 +20,8 @@
 // ----- Define -----
 defineProps({
   label: { type: String, default: 'Boutton' },
-  icon: { type: Array, default: () => [] }
+  icon: { type: Array, default: () => [] },
+  bgColor: {type: String, default: '#3d556d'}
 });
 
 // ------------------
@@ -59,8 +61,7 @@ defineProps({
 .pi-button {
   cursor: pointer;
   width: fit-content;
-  border-radius: 10px 0 10px 0;
-  background-color: $primary-color;
+  border-radius: $border-radius;
 
   .button {
     all: unset;
@@ -72,9 +73,9 @@ defineProps({
 
     &__icon {
       background-color: rgba(0, 0, 0, 0.30);
-      width: 30px;
-      height: 30px;
-      padding: 10px;
+      width: 25px;
+      height: 25px;
+      padding: 15px;
       border-radius: 10px 0 10px 0;
       color: $white-color;
 
@@ -82,7 +83,7 @@ defineProps({
     }
 
     &__label {
-      padding: 10px;
+      padding: 15px;
       font-family: $font-button;
       font-weight: 500;
       font-size: 1rem;

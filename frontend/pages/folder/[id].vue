@@ -9,15 +9,14 @@
       <input type="text" v-model="folderName">
       <button @click="modifyFolderName">Modifier</button>
     </div>
-    <button v-if="folder.parent" @click="goToParentFolder">
-      <font-awesome-icon class="back-folder" :icon="['fas', 'right-from-bracket']" />
-      <p>Dossier parent</p>
-    </button>
+
+    <PiButton v-if="folder.parent" @click="goToParentFolder"  :bgColor="'#3f556d'" label="Dossier parent" :icon="['fas', 'right-from-bracket']"/>
 
     <p>{{ errorMessage }}</p>
 
     <h2>Sous-dossiers</h2>
-    <PiButton label="coucou" :icon="['far', 'square-check']"/>
+    <button class="button" @click="() => showMessageAlert('success', 'Opération réussie !')">Afficher l'Alerte de Succès</button>
+    <button class="button" @click="() => showMessageAlert('error', 'Une erreur est survenue')">Afficher l'Alerte d'Erreur</button>
 
     <div class="SubFolder" v-if="folder.children && folder.children.length">
       <!-- <li v-for="child in folder.children" :key="child.id">
@@ -69,7 +68,11 @@ interface IFolder {
 // ------------------
 
 // ----- Define -----
+const alertRef = ref(null);
 
+const showMessageAlert = (status: 'success' | 'error', message: string) => {
+  alertRef.value?.addMessage(status, message);
+};
 // ------------------
 
 // ------ Const -----

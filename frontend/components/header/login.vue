@@ -1,5 +1,7 @@
 <template>
   <div class="top-bar">
+    <Alert ref="alertRef" />
+
     <div class="top-bar__auth">
       <template v-if="!authStore.isLoggedIn">
         <form @submit.prevent="login">
@@ -38,6 +40,7 @@ const authStore = useAuthStore();
 // ---- Reactive ----
 const credentials = ref({ username: "", password: "" });
 const error = ref("");
+const alertRef = ref(null);
 // ------------------
 
 // ---- Computed ----
@@ -51,9 +54,11 @@ const error = ref("");
 // --- Async Func ---
 const login = async () => {
   try {
+    showMessageAlert('info', 'Chargement...')
     await authStore.login(credentials.value);
+    showMessageAlert('success', 'Connexion réussis')
   } catch (e) {
-    error.value = 'Nom d’utilisateur ou mot de passe incorrect.';
+    showMessageAlert('error', 'identifiant, ou mot de passe incorrect')
   }
 };
 
@@ -63,6 +68,12 @@ const login = async () => {
 // ---- Function ----
 const logout = () => {
   authStore.logout();
+  showMessageAlert('success', 'Déconnexion réussis')
+
+};
+
+function showMessageAlert(status: 'success' | 'error' | 'info' | 'warning', message: string) {
+  alertRef.value?.addMessage(status, message);
 };
 // ------------------
 

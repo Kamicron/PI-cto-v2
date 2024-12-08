@@ -2,6 +2,9 @@
 
 /* === Couleurs === */
 $primary-color: #3f556d;
+$dark-color: #2c3b4c;
+$gray-medium-color: #8f9eb1;
+$gray-light-color: #c9d6e7;
 $white-color: #F4F6F8;
 // $secondary-color: #6c757d;
 // $background-color: #f8f9fa; 
@@ -19,27 +22,12 @@ $font-primary: 'Ubuntu', sans-serif;
 $font-button: 'Poppins', sans-serif;
 $font-logo: 'Molle', cursive;
 
-$font-size-base: 16px; 
-$font-size-small: 14px;
-$font-size-large: 18px;
-
-$line-height-base: 1.5; 
-
-/* === Espacement === */
-$spacing-unit: 8px; 
-
-$spacing-small: $spacing-unit;
-$spacing-medium: $spacing-unit * 2; 
-$spacing-large: $spacing-unit * 3; 
 
 /* === Bordures === */
-$border-radius: 4px;
-$border-width: 1px;
-$border-color: #dee2e6;
+$border-radius: 10px 0 10px 0;
 
 /* === Ombres === */
 $box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
 
 /* === Largeurs === */
 $container-width: 1200px; 
-$gutter-width: $spacing-medium; 
