@@ -59,7 +59,7 @@ const login = async () => {
     showMessageAlert('info', 'Chargement...')
     await authStore.login(credentials.value);
     showMessageAlert('success', 'Connexion réussis')
-    router.push('/')
+    router.push('/folder/495e09c7-e09d-481e-9c29-ae62e58fc25b')
 
   } catch (e) {
     showMessageAlert('error', 'identifiant, ou mot de passe incorrect')
@@ -73,6 +73,7 @@ const login = async () => {
 const logout = () => {
   authStore.logout();
   showMessageAlert('success', 'Déconnexion réussis')
+  router.push('/')
 
 };
 
