@@ -3,7 +3,7 @@
     <div v-if="folderName && !isModifyFolderName" class="folder__name">
       <h1>{{ folderName }}</h1>
 
-      <pi-button label="éditer" :icon="['fas', 'pen']" tiny @click="isModifyFolderName = true"/>
+      <pi-button label="éditer" :icon="['fas', 'pen']" tiny @click="isModifyFolderName = true" />
 
       <!-- <button @click="isModifyFolderName = true"><font-awesome-icon :icon="['fas', 'pen']" /></button> -->
     </div>
@@ -12,35 +12,51 @@
       <button @click="modifyFolderName">Modifier</button>
     </div>
 
-    <PiButton v-if="folder.parent" @click="goToParentFolder"  :bgColor="'#3f556d'" label="Dossier parent" :icon="['fas', 'right-from-bracket']"/>
+    <PiButton v-if="folder.parent" @click="goToParentFolder" :bgColor="'#3f556d'" label="Dossier parent"
+      :icon="['fas', 'right-from-bracket']" tiny />
+
 
     <p>{{ errorMessage }}</p>
 
-    <h2>Sous-dossiers</h2>
+    <div class="folder__subfolder">
+      <h2>Sous-dossiers</h2>
 
-    <div class="SubFolder" v-if="folder.children && folder.children.length">
-
-      <PIFolder v-for="child in folder.children" :key="child.id" :folder="child" />
-
+      <PiButton @click="openModal" :icon="['fas', 'folder-plus']" label="Ajouter un dossier" tiny />
+      <div class="SubFolder" v-if="folder.children && folder.children.length">
+        <PIFolder v-for="child in folder.children" :key="child.id" :folder="child" />
+      </div>
+      <p v-else>Aucun sous-dossier.</p>
     </div>
-    <p v-else>Aucun sous-dossier.</p>
 
     <h2>Photos</h2>
     <div class="folder__images">
-      <ImageCard v-for="photo in photos" :key="photo.id" :src="`${apiUrl}/uploads/${photo.url}`"
-        :alt="photo.name" :name="photo.name" @delete="deletePhoto(photo.id)" />
+      <ImageCard v-for="photo in photos" :key="photo.id" :src="`${apiUrl}/uploads/${photo.url}`" :alt="photo.name"
+        :name="photo.name" @delete="deletePhoto(photo.id)" />
     </div>
 
     <uploader :folderId="folderId" @upload="fetchFolder()" />
 
   </div>
   <loader v-else />
+
+  <modal :isOpen="isModalOpen" maxWidth="800px" title="Ajouter un nouveau dossier" @close="isModalOpen = false">
+    <div class="addFolder">
+      <div class="addFolder__input">
+        <label>Nom du dossier</label>
+        <input v-model="nameFolder" type="text" name="nameFolder">
+      </div>
+      <div class="addFolder__button">
+        <pi-button tiny bg-color="#28a745" @click="saveFolder" :icon="['far', 'floppy-disk']" label="Sauvegarder" />
+        <pi-button tiny bg-color="#dc3545" @click="isModalOpen = false" :icon="['fas', 'xmark']" label="Annuler" />
+      </div>
+    </div>
+  </modal>
 </template>
 
 
 <script setup lang='ts'>
 // ----- Import -----
-import { ref, onMounted } from "vue";
+import { ref, onMounted, watch } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { useNuxtApp } from "#app";
 import { useRuntimeConfig } from "nuxt/app";
@@ -78,7 +94,7 @@ const router = useRouter()
 const folderId = route.params.id
 const { public: config } = useRuntimeConfig()
 const apiUrl = config.apiBaseUrl;
-
+const isModalOpen = ref<boolean>(false)
 // ------------------
 
 // ---- Reactive ----
@@ -86,6 +102,7 @@ const folder = ref<IFolder>()
 const photos = ref([])
 const folderName = ref<string>('')
 const errorMessage = ref<string>('')
+const nameFolder = ref<string>('')
 
 const isModifyFolderName = ref<boolean>(false)
 const { $api } = useNuxtApp();
@@ -102,7 +119,6 @@ onMounted(async () => {
 });
 // ------------------
 
-// --- Async Func ---
 async function modifyFolderName() {
   try {
     const { data } = await $api.patch(`/folders/${folderId}/name`, { name: folderName.value })
@@ -122,6 +138,26 @@ async function modifyFolderName() {
     } else {
       errorMessage.value = 'Une erreur inconnue est survenue.'
     }
+  }
+}
+
+async function createFolder() {
+  if (!nameFolder.value || nameFolder.value.trim().length < 3) {
+    errorMessage.value = "Le nom du dossier doit contenir au moins 3 caractères.";
+    return;
+  }
+
+  try {
+    const { data } = await $api.post("/folders/create", {
+      name: nameFolder.value.trim(),
+      parentId: folderId,
+    });
+
+    nameFolder.value = ""
+
+    fetchFolder()
+  } catch (error: any) {
+    errorMessage.value = error.response?.data?.message || "Une erreur est survenue.";
   }
 }
 
@@ -159,29 +195,78 @@ function goToParentFolder() {
     router.push(`/folder/${folder.value.parent.id}`)
   }
 }
+
+function openModal() {
+  isModalOpen.value = true
+}
+
+function saveFolder() {
+  createFolder()
+  isModalOpen.value = false
+}
 // ------------------
 
 // ------ Watch -----
-
+watch(
+  () => nameFolder.value,
+  (newVal) => {
+    console.log('newVal:', newVal)
+  }
+);
 // ------------------
 
 </script>
 
 <style lang='scss' scoped>
 .folder {
-&__name {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 20px;
-}
+  &__name {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 20px;
+  }
 
   &__images {
     display: flex;
     flex-wrap: wrap;
     gap: 16px;
-    margin: 20px 0;
   }
+
+  &__subfolder {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  &__image {
+    width: 150px;
+    text-align: center;
+
+    img {
+      max-width: 100%;
+      border-radius: 8px;
+    }
+  }
+}
+
+.addFolder {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+
+  &__input {
+    display: flex;
+    flex-direction: column;
+    gap: 5px
+  }
+
+  &__button {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    align-items: center;
+  }
+
 }
 
 .SubFolder {
@@ -192,6 +277,4 @@ function goToParentFolder() {
 .back-folder {
   rotate: 180Deg;
 }
-
-
 </style>
