@@ -520,6 +520,11 @@
   dependencies:
     "@fortawesome/fontawesome-common-types" "6.7.1"
 
+"@fortawesome/vue-fontawesome@3.x":
+  version "3.0.8"
+  resolved "https://registry.yarnpkg.com/@fortawesome/vue-fontawesome/-/vue-fontawesome-3.0.8.tgz#1e8032df151173d8174ac9f5a28da3c0f5a495e4"
+  integrity sha512-yyHHAj4G8pQIDfaIsMvQpwKMboIZtcHTUvPqXjOHyldh1O1vZfH4W03VDPv5RvI9P6DLTzJQlmVgj9wCf7c2Fw==
+
 "@ioredis/commands@^1.1.1":
   version "1.2.0"
   resolved "https://registry.yarnpkg.com/@ioredis/commands/-/commands-1.2.0.tgz#6d61b3097470af1fdbbe622795b8921d42018e11"
