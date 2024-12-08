@@ -35,40 +35,36 @@ export class FolderService {
       relations: ['parent', 'children', 'photos'], // Inclure les photos dans la réponse
     });
   }
-  
+
   async findRootFolders(): Promise<Folder[]> {
     return this.folderRepository.find({
       where: { parent: null }, // Filtrer les dossiers racines
       relations: ['children'], // Charger les sous-dossiers pour inclure leurs informations
     });
   }
-  
-  async updateName(id: string, newName: string): Promise<Folder> {    
+
+  async updateName(id: string, newName: string): Promise<Folder> {
     const folder = await this.folderRepository.findOne({ where: { id } });
-  
+
     if (!folder) {
       throw new Error('Folder not found');
     }
-  
+
     folder.name = newName;
     return this.folderRepository.save(folder);
   }
-  
-  
+
   async findOneWithChildren(id: string): Promise<Folder> {
     const folder = await this.folderRepository.findOne({
       where: { id },
       relations: ['parent', 'children', 'photos'],
     });
-  
+
     if (folder) {
       folder.children = folder.children || []; // Toujours un tableau
       folder.photos = folder.photos || []; // Toujours un tableau
     }
-  
+
     return folder;
   }
- x  
-  
-  
 }

@@ -4,16 +4,18 @@
 
     <div class="top-bar__auth">
       <template v-if="!authStore.isLoggedIn">
-        <form @submit.prevent="login">
+        <form style="display: flex; gap:10px" @submit.prevent="login">
           <input v-model="credentials.username" type="text" placeholder="Nom d'utilisateur" />
           <input v-model="credentials.password" type="password" placeholder="Mot de passe" />
-          <button type="submit">Se connecter</button>
+          <pi-button type="submit" tiny bg-color="#2c3b4c" label="Connexion" icon="fa-solid fa-user-shield"/>
+          <!-- <button type="submit">Se connecter</button> -->
         </form>
         <p v-if="error">{{ error }}</p>
       </template>
       <template v-else>
         <span>Bienvenue, {{ authStore.username }}</span>
-        <button @click="logout">Se déconnecter</button>
+        <pi-button @click="logout" tiny bg-color="#2c3b4c" label="Déconnexion" :icon="['fas', 'power-off']"/>
+
       </template>
     </div>
   </div>

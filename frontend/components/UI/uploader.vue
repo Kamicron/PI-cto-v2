@@ -200,7 +200,7 @@ function removeFile(index: number) {
 
   &__submit {
     border: none;
-    border-radius: 4px;
+    border-radius: $border-radius;
     cursor: pointer;
     transition: background-color 0.3s;
 

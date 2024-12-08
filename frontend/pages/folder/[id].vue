@@ -1,9 +1,11 @@
 <template>
   <div class="folder" v-if="folder">
-    <div v-if="folderName && !isModifyFolderName" style="display: flex;">
+    <div v-if="folderName && !isModifyFolderName" class="folder__name">
       <h1>{{ folderName }}</h1>
 
-      <button @click="isModifyFolderName = true"><font-awesome-icon :icon="['fas', 'pen']" /></button>
+      <pi-button label="éditer" :icon="['fas', 'pen']" tiny @click="isModifyFolderName = true" />
+
+      <!-- <button @click="isModifyFolderName = true"><font-awesome-icon :icon="['fas', 'pen']" /></button> -->
     </div>
     <div v-if="isModifyFolderName">
       <input type="text" v-model="folderName">
@@ -20,7 +22,6 @@
       <h2>Sous-dossiers</h2>
 
       <PiButton @click="openModal" :icon="['fas', 'folder-plus']" label="Ajouter un dossier" tiny />
-
       <div class="SubFolder" v-if="folder.children && folder.children.length">
         <PIFolder v-for="child in folder.children" :key="child.id" :folder="child" />
       </div>
@@ -29,13 +30,12 @@
 
     <h2>Photos</h2>
     <div class="folder__images">
-      <div v-for="photo in photos" :key="photo.id" class="folder__image">
-        <img :src="`${apiUrl}/uploads/${photo.url}`" :alt="photo.name" />
-        <p>{{ photo.name }}</p>
-      </div>
+      <ImageCard v-for="photo in photos" :key="photo.id" :src="`${apiUrl}/uploads/${photo.url}`" :alt="photo.name"
+        :name="photo.name" @delete="deletePhoto(photo.id)" />
     </div>
 
     <uploader :folderId="folderId" @upload="fetchFolder()" />
+
   </div>
   <loader v-else />
 
@@ -161,30 +161,17 @@ async function createFolder() {
   }
 }
 
-async function uploadImages() {
+async function deletePhoto(photoId: string) {
   try {
-    const inputElement = document.querySelector('input[type="file"]') as HTMLInputElement;
+    const { data } = await $api.delete(`/images/${photoId}`);
 
-    if (!inputElement || !inputElement.files || inputElement.files.length === 0) {
-      errorMessage.value = "Veuillez sélectionner un ou plusieurs fichiers.";
-      return;
+    if (data.success) {
+      photos.value = photos.value.filter(photo => photo.id !== photoId);
+    } else {
+      console.error('Erreur lors de la suppression de l\'image.');
     }
-
-    const formData = new FormData();
-
-    for (const file of inputElement.files) {
-      formData.append('file', file);
-    }
-
-    await $api.post(`/images/${folderId}/upload`, formData);
-
-    // Recharge les photos après upload
-    await fetchPhotos();
-
-    inputElement.value = ""; // Réinitialiser le champ de fichier
   } catch (error) {
-    console.error("Erreur lors de l'upload des images :", error);
-    errorMessage.value = "Une erreur est survenue lors de l'upload des images.";
+    console.error('Erreur lors de la suppression de l\'image :', error);
   }
 }
 
@@ -232,6 +219,13 @@ watch(
 
 <style lang='scss' scoped>
 .folder {
+  &__name {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 20px;
+  }
+
   &__images {
     display: flex;
     flex-wrap: wrap;
