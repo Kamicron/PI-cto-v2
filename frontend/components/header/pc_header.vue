@@ -1,7 +1,7 @@
 <template>
-    <div class='header'> 
+    <header class='header'> 
         <Login />
-    </div>
+    </header>
 </template>
 
 <script setup lang='ts'>

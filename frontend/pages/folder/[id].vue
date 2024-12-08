@@ -14,11 +14,13 @@
     <p>{{ errorMessage }}</p>
 
     <h2>Sous-dossiers</h2>
-    <ul v-if="folder.children && folder.children.length">
-      <li v-for="child in folder.children" :key="child.id">
+    <div class="SubFolder" v-if="folder.children && folder.children.length">
+      <!-- <li v-for="child in folder.children" :key="child.id">
         <NuxtLink :to="`/folder/${child.id}`">{{ child.name }}</NuxtLink>
-      </li>
-    </ul>
+      </li> -->
+        <PIFolder v-for="child in folder.children" :key="child.id":folder="child" />
+
+    </div>
     <p v-else>Aucun sous-dossier.</p>
 
     <h2>Photos</h2>
@@ -28,12 +30,8 @@
         <p>{{ photo.name }}</p>
       </div>
     </div>
-
-    <h2>Uploader des images</h2>
-    <form @submit.prevent="uploadImages">
-      <input type="file" ref="fileInput" multiple />
-      <button type="submit">Uploader</button>
-    </form>
+    
+    <uploader :folderId="folderId" @upload="fetchFolder()"/>
   </div>
   <p v-else>Chargement...</p>
 </template>
@@ -45,10 +43,24 @@ import { ref, onMounted } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { useNuxtApp } from "#app";
 import { useRuntimeConfig } from "nuxt/app";
+
 // ------------------
 
 // ------ Type ------
+interface ILightFolder {
+    id: string;
+    createdAt: Date;
+    name: string;
+  }
 
+
+interface IFolder {
+    id: string;
+    name: string;
+    createdAt: Date;
+    children: ILightFolder[];
+    parent: ILightFolder | null;
+  }
 // ------------------
 
 // ----- Define -----
@@ -65,7 +77,7 @@ const apiUrl = config.apiBaseUrl;
 // ------------------
 
 // ---- Reactive ----
-const folder = ref()
+const folder = ref<IFolder>()
 const photos = ref([])
 const folderName = ref<string>('')
   const errorMessage = ref<string>('')
@@ -81,14 +93,7 @@ const { $api } = useNuxtApp();
 
 // ------ Hooks -----
 onMounted(async () => {
-  try {
-    const { data } = await $api.get(`/folders/${folderId}`)
-    folder.value = data || { name: '', children: [], parent: null }
-    photos.value = data.photos || []
-    folderName.value = data.name
-  } catch (error) {
-    console.error("Erreur lors de la récupération des données :", error)
-  }
+  fetchFolder()
 });
 // ------------------
 
@@ -141,6 +146,19 @@ async function uploadImages() {
     errorMessage.value = "Une erreur est survenue lors de l'upload des images.";
   }
 }
+
+async function fetchFolder() {
+  try {
+    const { data } = await $api.get(`/folders/${folderId}`)
+    folder.value = data || { name: '', children: [], parent: null }
+    photos.value = data.photos || []
+    folderName.value = data.name
+    console.log('folder.value', folder.value);
+    
+  } catch (error) {
+    console.error("Erreur lors de la récupération des données :", error)
+  }
+}
 // ------------------
 
 // ---- Function ----
@@ -175,4 +193,8 @@ function goToParentFolder() {
     }
   }
 }
+
+.SubFolder {
+  display: flex;
+  gap: 20px}
 </style>

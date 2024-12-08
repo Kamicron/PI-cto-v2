@@ -1,0 +1,43 @@
+// @import url('https://fonts.googleapis.com/css2?family=Molle&family=Ubuntu:ital,wght@0,300;0,400;0,500;0,700;1,300;1,400;1,500;1,700&display=swap');
+
+/* === Couleurs === */
+$primary-color: #3f556d;
+$secondary-color: #6c757d;
+$background-color: #f8f9fa; 
+$text-color: #212529; 
+$muted-color: #6c757d; 
+
+/* États */
+$success-color: #28a745;
+$danger-color: #dc3545;
+$warning-color: #ffc107;
+$info-color: #17a2b8;
+
+/* === Typographie === */
+$font-primary: 'Ubuntu', sans-serif;
+$font-logo: 'Molle', cursive;
+
+$font-size-base: 16px; 
+$font-size-small: 14px;
+$font-size-large: 18px;
+
+$line-height-base: 1.5; 
+
+/* === Espacement === */
+$spacing-unit: 8px; 
+
+$spacing-small: $spacing-unit;
+$spacing-medium: $spacing-unit * 2; 
+$spacing-large: $spacing-unit * 3; 
+
+/* === Bordures === */
+$border-radius: 4px;
+$border-width: 1px;
+$border-color: #dee2e6;
+
+/* === Ombres === */
+$box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+
+/* === Largeurs === */
+$container-width: 1200px; 
+$gutter-width: $spacing-medium; 
