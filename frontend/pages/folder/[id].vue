@@ -1,24 +1,28 @@
 <template>
   <div class="folder" v-if="folder">
-    <div v-if="folderName && !isModifyFolderName" style="display: flex;">
+    <div v-if="folderName && !isModifyFolderName" class="folder__name">
       <h1>{{ folderName }}</h1>
 
-      <button @click="isModifyFolderName = true"><font-awesome-icon :icon="['fas', 'pen']" /></button>
+      <pi-button label="éditer" :icon="['fas', 'pen']" tiny @click="isModifyFolderName = true"/>
+
+      <!-- <button @click="isModifyFolderName = true"><font-awesome-icon :icon="['fas', 'pen']" /></button> -->
     </div>
     <div v-if="isModifyFolderName">
       <input type="text" v-model="folderName">
       <button @click="modifyFolderName">Modifier</button>
     </div>
-    <button v-if="folder.parent" @click="goToParentFolder">Retour au dossier parent</button>
+
+    <PiButton v-if="folder.parent" @click="goToParentFolder"  :bgColor="'#3f556d'" label="Dossier parent" :icon="['fas', 'right-from-bracket']"/>
 
     <p>{{ errorMessage }}</p>
 
     <h2>Sous-dossiers</h2>
-    <ul v-if="folder.children && folder.children.length">
-      <li v-for="child in folder.children" :key="child.id">
-        <NuxtLink :to="`/folder/${child.id}`">{{ child.name }}</NuxtLink>
-      </li>
-    </ul>
+
+    <div class="SubFolder" v-if="folder.children && folder.children.length">
+
+      <PIFolder v-for="child in folder.children" :key="child.id" :folder="child" />
+
+    </div>
     <p v-else>Aucun sous-dossier.</p>
 
     <h2>Photos</h2>
@@ -27,14 +31,10 @@
         :alt="photo.name" :name="photo.name" @delete="deletePhoto(photo.id)" />
     </div>
 
-    <h2>Uploader des images</h2>
-    <form @submit.prevent="uploadImages">
-      <input type="file" ref="fileInput" multiple />
-      <button type="submit">Uploader</button>
-    </form>
+    <uploader :folderId="folderId" @upload="fetchFolder()" />
 
   </div>
-  <p v-else>Chargement...</p>
+  <loader v-else />
 </template>
 
 
@@ -43,25 +43,47 @@
 import { ref, onMounted } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { useNuxtApp } from "#app";
+import { useRuntimeConfig } from "nuxt/app";
+
 // ------------------
 
 // ------ Type ------
+interface ILightFolder {
+  id: string;
+  createdAt: Date;
+  name: string;
+}
 
+
+interface IFolder {
+  id: string;
+  name: string;
+  createdAt: Date;
+  children: ILightFolder[];
+  parent: ILightFolder | null;
+}
 // ------------------
 
 // ----- Define -----
+const alertRef = ref(null);
 
+const showMessageAlert = (status: 'success' | 'error', message: string) => {
+  alertRef.value?.addMessage(status, message);
+};
 // ------------------
 
 // ------ Const -----
-const route = useRoute();
-const router = useRouter();
-const folderId = route.params.id;
+const route = useRoute()
+const router = useRouter()
+const folderId = route.params.id
+const { public: config } = useRuntimeConfig()
+const apiUrl = config.apiBaseUrl;
+
 // ------------------
 
 // ---- Reactive ----
-const folder = ref();
-const photos = ref([]);
+const folder = ref<IFolder>()
+const photos = ref([])
 const folderName = ref<string>('')
 const errorMessage = ref<string>('')
 
@@ -76,14 +98,7 @@ const { $api } = useNuxtApp();
 
 // ------ Hooks -----
 onMounted(async () => {
-  try {
-    const { data } = await $api.get(`/folders/${folderId}`);
-    folder.value = data || { name: '', children: [], parent: null }; // Initialisation par défaut
-    photos.value = data.photos || [];
-    folderName.value = data.name
-  } catch (error) {
-    console.error("Erreur lors de la récupération des données :", error);
-  }
+  fetchFolder()
 });
 // ------------------
 
@@ -124,49 +139,24 @@ async function deletePhoto(photoId: string) {
   }
 }
 
-async function fetchPhotos() {
+async function fetchFolder() {
   try {
-    const { data } = await $api.get(`/folders/${folderId}`);
-    photos.value = data.photos || [];
+    const { data } = await $api.get(`/folders/${folderId}`)
+    folder.value = data || { name: '', children: [], parent: null }
+    photos.value = data.photos || []
+    folderName.value = data.name
+    console.log('folder.value', folder.value);
+
   } catch (error) {
-    console.error("Erreur lors de la récupération des photos :", error);
+    console.error("Erreur lors de la récupération des données :", error)
   }
 }
-
-// Ajoutez fetchPhotos après l'upload
-async function uploadImages() {
-  try {
-    const inputElement = document.querySelector('input[type="file"]') as HTMLInputElement;
-
-    if (!inputElement || !inputElement.files || inputElement.files.length === 0) {
-      errorMessage.value = "Veuillez sélectionner un ou plusieurs fichiers.";
-      return;
-    }
-
-    const formData = new FormData();
-
-    for (const file of inputElement.files) {
-      formData.append('file', file);
-    }
-
-    await $api.post(`/images/${folderId}/upload`, formData);
-
-    // Recharge les photos après upload
-    await fetchPhotos();
-
-    inputElement.value = ""; // Réinitialiser le champ de fichier
-  } catch (error) {
-    console.error("Erreur lors de l'upload des images :", error);
-    errorMessage.value = "Une erreur est survenue lors de l'upload des images.";
-  }
-}
-
 // ------------------
 
 // ---- Function ----
 function goToParentFolder() {
   if (folder.value.parent) {
-    router.push(`/folder/${folder.value.parent.id}`);
+    router.push(`/folder/${folder.value.parent.id}`)
   }
 }
 // ------------------
@@ -179,20 +169,29 @@ function goToParentFolder() {
 
 <style lang='scss' scoped>
 .folder {
+&__name {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 20px;
+}
+
   &__images {
     display: flex;
     flex-wrap: wrap;
     gap: 16px;
-  }
-
-  &__image {
-    width: 150px;
-    text-align: center;
-
-    img {
-      max-width: 100%;
-      border-radius: 8px;
-    }
+    margin: 20px 0;
   }
 }
+
+.SubFolder {
+  display: flex;
+  gap: 20px
+}
+
+.back-folder {
+  rotate: 180Deg;
+}
+
+
 </style>
