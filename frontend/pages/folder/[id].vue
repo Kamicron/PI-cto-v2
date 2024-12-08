@@ -2,23 +2,28 @@
   <div class="folder" v-if="folder">
     <div v-if="folderName && !isModifyFolderName" style="display: flex;">
       <h1>{{ folderName }}</h1>
-            
+
       <button @click="isModifyFolderName = true"><font-awesome-icon :icon="['fas', 'pen']" /></button>
     </div>
     <div v-if="isModifyFolderName">
       <input type="text" v-model="folderName">
       <button @click="modifyFolderName">Modifier</button>
-    </div>    
-    <button v-if="folder.parent" @click="goToParentFolder">Retour au dossier parent</button>
+    </div>
+    <button v-if="folder.parent" @click="goToParentFolder">
+      <font-awesome-icon class="back-folder" :icon="['fas', 'right-from-bracket']" />
+      <p>Dossier parent</p>
+    </button>
 
     <p>{{ errorMessage }}</p>
 
     <h2>Sous-dossiers</h2>
+    <PiButton label="coucou" :icon="['far', 'square-check']"/>
+
     <div class="SubFolder" v-if="folder.children && folder.children.length">
       <!-- <li v-for="child in folder.children" :key="child.id">
         <NuxtLink :to="`/folder/${child.id}`">{{ child.name }}</NuxtLink>
       </li> -->
-        <PIFolder v-for="child in folder.children" :key="child.id":folder="child" />
+      <PIFolder v-for="child in folder.children" :key="child.id" :folder="child" />
 
     </div>
     <p v-else>Aucun sous-dossier.</p>
@@ -30,8 +35,8 @@
         <p>{{ photo.name }}</p>
       </div>
     </div>
-    
-    <uploader :folderId="folderId" @upload="fetchFolder()"/>
+
+    <uploader :folderId="folderId" @upload="fetchFolder()" />
   </div>
   <p v-else>Chargement...</p>
 </template>
@@ -48,19 +53,19 @@ import { useRuntimeConfig } from "nuxt/app";
 
 // ------ Type ------
 interface ILightFolder {
-    id: string;
-    createdAt: Date;
-    name: string;
-  }
+  id: string;
+  createdAt: Date;
+  name: string;
+}
 
 
 interface IFolder {
-    id: string;
-    name: string;
-    createdAt: Date;
-    children: ILightFolder[];
-    parent: ILightFolder | null;
-  }
+  id: string;
+  name: string;
+  createdAt: Date;
+  children: ILightFolder[];
+  parent: ILightFolder | null;
+}
 // ------------------
 
 // ----- Define -----
@@ -80,8 +85,8 @@ const apiUrl = config.apiBaseUrl;
 const folder = ref<IFolder>()
 const photos = ref([])
 const folderName = ref<string>('')
-  const errorMessage = ref<string>('')
-  
+const errorMessage = ref<string>('')
+
 const isModifyFolderName = ref<boolean>(false)
 const { $api } = useNuxtApp();
 
@@ -99,7 +104,7 @@ onMounted(async () => {
 
 // --- Async Func ---
 async function modifyFolderName() {
-  try {    
+  try {
     const { data } = await $api.patch(`/folders/${folderId}/name`, { name: folderName.value })
 
     if (!data) {
@@ -108,7 +113,7 @@ async function modifyFolderName() {
     }
 
     folderName.value = data.name
-    
+
     isModifyFolderName.value = false
 
   } catch (error: any) {
@@ -154,7 +159,7 @@ async function fetchFolder() {
     photos.value = data.photos || []
     folderName.value = data.name
     console.log('folder.value', folder.value);
-    
+
   } catch (error) {
     console.error("Erreur lors de la récupération des données :", error)
   }
@@ -196,5 +201,10 @@ function goToParentFolder() {
 
 .SubFolder {
   display: flex;
-  gap: 20px}
+  gap: 20px
+}
+
+.back-folder {
+  rotate: 180Deg;
+}
 </style>

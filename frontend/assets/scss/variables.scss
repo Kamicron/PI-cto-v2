@@ -2,10 +2,11 @@
 
 /* === Couleurs === */
 $primary-color: #3f556d;
-$secondary-color: #6c757d;
-$background-color: #f8f9fa; 
-$text-color: #212529; 
-$muted-color: #6c757d; 
+$white-color: #F4F6F8;
+// $secondary-color: #6c757d;
+// $background-color: #f8f9fa; 
+// $text-color: #212529; 
+// $muted-color: #6c757d; 
 
 /* États */
 $success-color: #28a745;
@@ -15,6 +16,7 @@ $info-color: #17a2b8;
 
 /* === Typographie === */
 $font-primary: 'Ubuntu', sans-serif;
+$font-button: 'Poppins', sans-serif;
 $font-logo: 'Molle', cursive;
 
 $font-size-base: 16px; 

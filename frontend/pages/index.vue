@@ -2,7 +2,8 @@
   <div class="folder" v-if="folder">
     <div v-if="folder.name && !isModifyFolderName" style="display: flex;">
       <h1>{{ folder.name }}</h1>
-            
+      <PiButton label="test"/>
+       
       <button @click="isModifyFolderName = true"><font-awesome-icon :icon="['fas', 'pen']" /></button>
     </div>
     <div v-if="isModifyFolderName">
@@ -10,13 +11,16 @@
       <button @click="modifyFolderName">Modifier</button>
     </div>
 
-      <button v-if="folder.parent" @click="goToParentFolder">Retour au dossier parent</button>
+      <button v-if="folder.parent" @click="goToParentFolder">
+        <font-awesome-icon class="back-folder" :icon="['fas', 'right-from-bracket']" />
+      </button>
+
 
     <h2>Sous-dossiers</h2>
-    <ul v-if="folder.children && folder.children.length">
+    <div class="SubFolder" v-if="folder.children && folder.children.length">
         <PIFolder v-for="child in folder.children" :key="child.id":folder="child" />
 
-    </ul>
+    </div>
     <p v-else>Aucun sous-dossier.</p>
 
     <h2>Photos</h2>
@@ -151,5 +155,14 @@ watch(
       border-radius: 8px;
     }
   }
+}
+
+.SubFolder {
+  display: flex;
+  gap: 20px
+}
+
+.back-folder {
+  rotate: 180Deg;
 }
 </style>

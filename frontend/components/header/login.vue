@@ -1,6 +1,5 @@
 <template>
   <div class="top-bar">
-    <h1 class="top-bar__title">PI-cto</h1>
     <div class="top-bar__auth">
       <template v-if="!authStore.isLoggedIn">
         <form @submit.prevent="login">
@@ -75,13 +74,6 @@ const logout = () => {
 
 <style lang="scss" scoped>
 .top-bar {
-  background-color: $primary-color;
-  color: white;
-  padding: 10px 20px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-
   &__container {
     max-width: 1200px;
     margin: 0 auto;
