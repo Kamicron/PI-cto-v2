@@ -9,19 +9,23 @@
       <input type="text" v-model="folderName">
       <button @click="modifyFolderName">Modifier</button>
     </div>
-    <button v-if="folder.parent" @click="goToParentFolder">Retour au dossier parent</button>
+
+    <PiButton v-if="folder.parent" @click="goToParentFolder" :bgColor="'#3f556d'" label="Dossier parent"
+      :icon="['fas', 'right-from-bracket']" tiny />
 
 
-    <button @click="openModal"><font-awesome-icon :icon="['fas', 'folder-plus']" /></button>
     <p>{{ errorMessage }}</p>
 
-    <h2>Sous-dossiers</h2>
-    <ul v-if="folder.children && folder.children.length">
-      <li v-for="child in folder.children" :key="child.id">
-        <NuxtLink :to="`/folder/${child.id}`">{{ child.name }}</NuxtLink>
-      </li>
-    </ul>
-    <p v-else>Aucun sous-dossier.</p>
+    <div class="folder__subfolder">
+      <h2>Sous-dossiers</h2>
+
+      <PiButton @click="openModal" :icon="['fas', 'folder-plus']" label="Ajouter un dossier" tiny />
+
+      <div class="SubFolder" v-if="folder.children && folder.children.length">
+        <PIFolder v-for="child in folder.children" :key="child.id" :folder="child" />
+      </div>
+      <p v-else>Aucun sous-dossier.</p>
+    </div>
 
     <h2>Photos</h2>
     <div class="folder__images">
@@ -31,13 +35,9 @@
       </div>
     </div>
 
-    <h2>Uploader des images</h2>
-    <form @submit.prevent="uploadImages">
-      <input type="file" ref="fileInput" multiple />
-      <button type="submit">Uploader</button>
-    </form>
+    <uploader :folderId="folderId" @upload="fetchFolder()" />
   </div>
-  <p v-else>Chargement...</p>
+  <loader v-else />
 
   <modal :isOpen="isModalOpen" maxWidth="800px" title="Ajouter un nouveau dossier" @close="isModalOpen = false">
     <div class="addFolder">
@@ -46,12 +46,8 @@
         <input v-model="nameFolder" type="text" name="nameFolder">
       </div>
       <div class="addFolder__button">
-        <button @click="saveFolder">
-          <font-awesome-icon :icon="['far', 'floppy-disk']" /> Sauvegarder
-        </button>
-        
-       <button @click="isModalOpen=false"> 
-        <font-awesome-icon :icon="['fas', 'xmark']" /> Annuler</button>
+        <pi-button tiny bg-color="#28a745" @click="saveFolder" :icon="['far', 'floppy-disk']" label="Sauvegarder" />
+        <pi-button tiny bg-color="#dc3545" @click="isModalOpen = false" :icon="['fas', 'xmark']" label="Annuler" />
       </div>
     </div>
   </modal>
@@ -64,14 +60,32 @@ import { ref, onMounted, watch } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { useNuxtApp } from "#app";
 import { useRuntimeConfig } from "nuxt/app";
+
 // ------------------
 
 // ------ Type ------
+interface ILightFolder {
+  id: string;
+  createdAt: Date;
+  name: string;
+}
 
+
+interface IFolder {
+  id: string;
+  name: string;
+  createdAt: Date;
+  children: ILightFolder[];
+  parent: ILightFolder | null;
+}
 // ------------------
 
 // ----- Define -----
+const alertRef = ref(null);
 
+const showMessageAlert = (status: 'success' | 'error', message: string) => {
+  alertRef.value?.addMessage(status, message);
+};
 // ------------------
 
 // ------ Const -----
@@ -84,7 +98,7 @@ const isModalOpen = ref<boolean>(false)
 // ------------------
 
 // ---- Reactive ----
-const folder = ref()
+const folder = ref<IFolder>()
 const photos = ref([])
 const folderName = ref<string>('')
 const errorMessage = ref<string>('')
@@ -104,19 +118,6 @@ onMounted(async () => {
   fetchFolder()
 });
 // ------------------
-
-// --- Async Func ---
-async function fetchFolder() {
-  try {
-    const { data } = await $api.get(`/folders/${folderId}`)
-    folder.value = data || { name: '', children: [], parent: null }
-    photos.value = data.photos || []
-    folderName.value = data.name
-  } catch (error) {
-    console.error("Erreur lors de la récupération des données :", error)
-  }
-}
-
 
 async function modifyFolderName() {
   try {
@@ -186,6 +187,19 @@ async function uploadImages() {
     errorMessage.value = "Une erreur est survenue lors de l'upload des images.";
   }
 }
+
+async function fetchFolder() {
+  try {
+    const { data } = await $api.get(`/folders/${folderId}`)
+    folder.value = data || { name: '', children: [], parent: null }
+    photos.value = data.photos || []
+    folderName.value = data.name
+    console.log('folder.value', folder.value);
+
+  } catch (error) {
+    console.error("Erreur lors de la récupération des données :", error)
+  }
+}
 // ------------------
 
 // ---- Function ----
@@ -224,6 +238,12 @@ watch(
     gap: 16px;
   }
 
+  &__subfolder {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
   &__image {
     width: 150px;
     text-align: center;
@@ -243,7 +263,7 @@ watch(
   &__input {
     display: flex;
     flex-direction: column;
-    gap:5px
+    gap: 5px
   }
 
   &__button {
@@ -253,5 +273,14 @@ watch(
     align-items: center;
   }
 
+}
+
+.SubFolder {
+  display: flex;
+  gap: 20px
+}
+
+.back-folder {
+  rotate: 180Deg;
 }
 </style>
