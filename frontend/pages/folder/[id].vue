@@ -27,7 +27,7 @@
 
     <h2>Photos</h2>
     <div class="folder__images">
-      <ImageCard v-for="photo in photos" :key="photo.id" :src="`http://localhost:5000/uploads/${photo.url}`"
+      <ImageCard v-for="photo in photos" :key="photo.id" :src="`${apiUrl}/uploads/${photo.url}`"
         :alt="photo.name" :name="photo.name" @delete="deletePhoto(photo.id)" />
     </div>
 
