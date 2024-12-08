@@ -15,8 +15,6 @@
     <p>{{ errorMessage }}</p>
 
     <h2>Sous-dossiers</h2>
-    <button class="button" @click="() => showMessageAlert('success', 'Opération réussie !')">Afficher l'Alerte de Succès</button>
-    <button class="button" @click="() => showMessageAlert('error', 'Une erreur est survenue')">Afficher l'Alerte d'Erreur</button>
 
     <div class="SubFolder" v-if="folder.children && folder.children.length">
       <!-- <li v-for="child in folder.children" :key="child.id">
@@ -37,7 +35,7 @@
 
     <uploader :folderId="folderId" @upload="fetchFolder()" />
   </div>
-  <p v-else>Chargement...</p>
+  <loader v-else />
 </template>
 
 
@@ -210,4 +208,6 @@ function goToParentFolder() {
 .back-folder {
   rotate: 180Deg;
 }
+
+
 </style>

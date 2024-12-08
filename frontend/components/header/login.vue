@@ -22,6 +22,7 @@
 <script setup lang='ts'>
 // ----- Import -----
 import { ref } from "vue";
+import { useRouter } from "vue-router";
 import { useAuthStore } from '../../stores/auth';
 // ------------------
 
@@ -35,6 +36,7 @@ import { useAuthStore } from '../../stores/auth';
 
 // ------ Const -----
 const authStore = useAuthStore();
+const router = useRouter();
 // ------------------
 
 // ---- Reactive ----
@@ -57,6 +59,8 @@ const login = async () => {
     showMessageAlert('info', 'Chargement...')
     await authStore.login(credentials.value);
     showMessageAlert('success', 'Connexion réussis')
+    router.push('/')
+
   } catch (e) {
     showMessageAlert('error', 'identifiant, ou mot de passe incorrect')
   }
