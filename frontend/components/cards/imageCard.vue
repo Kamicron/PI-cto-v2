@@ -108,7 +108,8 @@ function truncateMiddle(text: string, maxLength: number) {
     justify-content: center;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
     transition: background 0.3s ease, backdrop-filter 0.3s ease, box-shadow 0.3s ease;
-
+    z-index: 10;
+    
     svg {
       font-size: 14px;
       color: $danger-color;
