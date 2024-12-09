@@ -26,9 +26,12 @@
     <p v-else>Aucun sous-dossier.</p>
 
     <h2>Photos</h2>
-    <div class="folder__images">
-      <ImageCard v-for="photo in photos" :key="photo.id" :src="`${apiUrl}/uploads/${photo.url}`"
-        :alt="photo.name" :name="photo.name" @delete="deletePhoto(photo.id)" />
+    <div class="folder__images-container">
+      <div class="folder__images">
+        <ImageCard class="folder__images--card" v-for="photo in photos" :key="photo.id"
+          :src="`${apiUrl}/uploads/${photo.url}`" :alt="photo.name" :name="photo.name"
+          @delete="deletePhoto(photo.id)" />
+      </div>
     </div>
 
     <uploader :folderId="folderId" @upload="fetchFolder()" />
@@ -176,11 +179,32 @@ function goToParentFolder() {
   gap: 20px;
 }
 
+  &__images-container {
+    margin-left: 20px;
+  }
+
   &__images {
     display: flex;
     flex-wrap: wrap;
-    gap: 16px;
-    margin: 20px 0;
+    justify-content: flex-start;
+    gap: 20px;
+
+    &--card {
+      flex: 1 1 calc(33.333% - 20px);
+      max-width: calc(33.333% - 20px);
+      min-width: 200px;
+      margin: 0;
+
+      @media (max-width: 768px) {
+        flex: 1 1 calc(50% - 20px);
+        max-width: calc(50% - 20px);
+      }
+
+      @media (max-width: 480px) {
+        flex: 1 1 100%;
+        max-width: 100%;
+      }
+    }
   }
 }
 

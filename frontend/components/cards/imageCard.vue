@@ -3,21 +3,28 @@
     <div class="image-card__delete" @click="onDelete">
       <font-awesome-icon :icon="['fas', 'trash-can']" />
     </div>
-    <img :src="src" :alt="alt" class="image-card__img" />
+    <div class="image-card__container">
+      <img :src="transparentBgSrc" alt="Transparent background" class="image-card__background" />
+      <img :src="src" :alt="alt" class="image-card__img" />
+    </div>
     <div class="image-card__footer">
       <p class="image-card__footer--name">{{ name }}</p>
-      <pi-button @click="copyLink(src)" label="Url" tiny :icon="['far', 'copy']" />
+      <div class="link-container">
+        <NuxtLink class="link-container__link" :to="src" :title="src" target="_blank">{{ shortUrl }}</NuxtLink>
+        <pi-button class="link-container__copy-buton" @click="copyLink(src)" label="Copier" tiny :icon="['far', 'copy']" />
+      </div>
       <div v-if="copiedMessage" class="image-card__footer--dialog">Lien copié !</div>
     </div>
-
   </div>
 </template>
 
+
+
 <script setup lang="ts">
-import { ref } from "vue";
+import { onMounted, ref } from "vue";
 
 
-defineProps({
+const props = defineProps({
   src: {
     type: String,
     required: true,
@@ -33,13 +40,18 @@ defineProps({
 });
 
 const emit = defineEmits(['delete'])
-
+const transparentBgSrc = "http://api.pi-cto.top/uploads/16d20c54-45bf-4dba-bbc1-9e377f7c224e/1733761480896-transparent.jpg";
+const shortUrl = ref<string>('')
 
 function onDelete() {
   emit('delete');
 }
 
 const copiedMessage = ref<boolean>(false);
+
+onMounted(() => {
+  shortUrl.value = truncateMiddle(props.src, 28)
+})
 
 async function copyLink(item: string) {
   try {
@@ -53,12 +65,20 @@ async function copyLink(item: string) {
     console.error('Erreur lors de la copie du lien :', error);
   }
 }
+
+function truncateMiddle(text: string, maxLength: number) {
+  if (text.length <= maxLength) return text;
+
+  const start = text.slice(0, Math.ceil(maxLength / 2) - 1);
+  const end = text.slice(-Math.floor(maxLength / 2));
+  return `${start}[...]${end}`;
+}
 </script>
 
 <style lang="scss" scoped>
 .image-card {
   position: relative;
-  width: 150px;
+  width: 280px;
   text-align: center;
   border: 1px solid #ddd;
   border-radius: $border-radius;
@@ -102,10 +122,58 @@ async function copyLink(item: string) {
     }
   }
 
+  &__container {
+    position: relative;
+    width: 100%;
+    padding-top: 100%;
+    overflow: hidden;
+
+    img {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      border-radius: $border-radius;
+
+    }
+  }
+
+
+  &__background {
+    z-index: 1;
+  }
+
+  &__img {
+    z-index: 2;
+  }
+
   &__img {
     max-width: 100%;
     border-radius: $border-radius;
     margin-bottom: 8px;
+  }
+
+
+  &__img {
+    position: relative;
+    z-index: 2;
+    max-width: 100%;
+    border-radius: $border-radius;
+    margin-bottom: 8px;
+  }
+
+  &--background {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: auto;
+    opacity: 0.7;
+    /* Ajustez l'opacité si nécessaire */
+    z-index: 1;
+    pointer-events: none;
   }
 
   &__footer {
@@ -113,26 +181,43 @@ async function copyLink(item: string) {
     flex-direction: column;
     align-items: center;
     gap: 5px;
-    
+
     &--name {
       font-size: 14px;
       color: #555;
       word-break: break-word;
     }
 
+    .link-container {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 20px;
+
+      &__link {
+        color: $primary-color;
+        text-decoration: none;
+
+        :hover {
+          text-decoration: underline;
+        }
+      }
+    }
+
     &--dialog {
-    position: absolute;
-    bottom: 20px;
-    left: 60px;
-    transform: translate(-50%, -50%);
-    background-color: rgba(49, 124, 194, 0.9);
-    color: white;
-    padding: 8px 16px;
-    border-radius: $border-radius;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    font-size: 14px;
-    animation: fadeOut 3s forwards;
-  }
+      position: absolute;
+      bottom: 30px;
+      right: -10px;
+      transform: translate(-50%, -50%);
+      background-color: rgba(49, 124, 194, 0.9);
+      color: white;
+      padding: 8px 16px;
+      border-radius: $border-radius;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      font-size: 14px;
+      animation: fadeOut 3s forwards;
+      z-index: 10;
+    }
   }
 
   &__copy {
