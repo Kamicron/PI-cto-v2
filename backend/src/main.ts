@@ -7,7 +7,7 @@ async function bootstrap() {
   // Configuration CORS
   app.enableCors({
     origin: [
-      'http://pi-cto.top',
+      'https://pi-cto.top',
       'http://92.141.130.187',
       'http://localhost:3000',
     ],
