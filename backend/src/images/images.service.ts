@@ -5,6 +5,7 @@ import { Photo } from '../photos/entities/photo.entity';
 import { Folder } from '../folder/entities/folder.entity';
 import { unlink } from 'fs/promises';
 import { join } from 'path';
+import * as fs from 'fs';
 
 @Injectable()
 export class ImagesService {
@@ -69,5 +70,36 @@ export class ImagesService {
     await this.photoRepository.delete(id);
 
     return { success: true };
+  }
+  async renameImage(
+    id: string,
+    newName: string,
+  ): Promise<{ success: boolean; updatedPhoto: Photo }> {
+    const photo = await this.photoRepository.findOne({
+      where: { id },
+      relations: ['folder'],
+    });
+
+    if (!photo) {
+      throw new Error('Photo introuvable.');
+    }
+
+    const oldFilePath = join(__dirname, '../../uploads', photo.url);
+    const folderPath = join(__dirname, '../../uploads', photo.folder.id);
+
+    const newFilePath = join(folderPath, newName);
+
+    try {
+      await fs.promises.rename(oldFilePath, newFilePath);
+    } catch (error) {
+      console.error('Erreur lors du renommage du fichier :', error.message);
+      throw new Error('Erreur lors du renommage du fichier physique.');
+    }
+
+    photo.name = newName;
+    photo.url = `${photo.folder.id}/${newName}`;
+    const updatedPhoto = await this.photoRepository.save(photo);
+
+    return { success: true, updatedPhoto };
   }
 }

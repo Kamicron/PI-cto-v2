@@ -58,6 +58,10 @@
 <style lang='scss' scoped>
 .header {
     background-color: $primary-color;
+    position: fixed;
+    width: 100vw;
+    top: 0;
+    z-index: 200;
 
     .container {
         color: white;
