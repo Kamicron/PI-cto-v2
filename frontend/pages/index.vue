@@ -2,7 +2,7 @@
   <!-- <div v-if="!isLoggedIn">Connectez-vous</div> -->
    <div class="folder">
     <folders-explorer @select-folder="(id: string) => folderId = id"/>
-    <folder-content :selected-folder-id="folderId"/>
+    <folder-main :selected-folder-id="folderId"/>
   <!-- <div v-if="folder">
 
     <div v-if="folder.name && !isModifyFolderName" style="display: flex;">

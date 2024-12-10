@@ -1,5 +1,5 @@
 <template>
-  <div class='folder-content'>
+  <div class='folder-main'>
     <div v-if="loader">chargement...</div>
 
     <div v-if="!folder && !loader">
@@ -102,5 +102,93 @@ watch(
 </script>
 
 <style lang='scss' scoped>
-  .folder-content{}
+  .folder-main{}
+
+  .folder {
+  display: flex;
+  gap: 20px;
+  margin-top: 20px;
+  &__main {
+    width: 100%;
+  }
+  &__name {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 20px;
+  }
+
+  &__images-container {
+    margin-left: 20px;
+  }
+
+  &__images {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+    gap: 20px;
+
+    &--card {
+      flex: 1 1 calc(33.333% - 20px);
+      max-width: calc(33.333% - 20px);
+      min-width: 200px;
+      margin: 0;
+
+      @media (max-width: 768px) {
+        flex: 1 1 calc(50% - 20px);
+        max-width: calc(50% - 20px);
+      }
+
+      @media (max-width: 480px) {
+        flex: 1 1 100%;
+        max-width: 100%;
+      }
+    }
+  }
+
+  &__subfolder {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  &__image {
+    width: 150px;
+    text-align: center;
+
+    img {
+      max-width: 100%;
+      border-radius: 8px;
+    }
+  }
+}
+
+.addFolder {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+
+  &__input {
+    display: flex;
+    flex-direction: column;
+    gap: 5px
+  }
+
+  &__button {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    align-items: center;
+  }
+
+}
+
+.SubFolder {
+  display: flex;
+  gap: 20px
+}
+
+.back-folder {
+  rotate: 180Deg;
+}
 </style>
