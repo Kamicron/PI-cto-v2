@@ -3,6 +3,7 @@
   <div class="layout">
     <NuxtPage />
   </div>
+  <pi-footer />
 </template>
 
 <script lang="ts" setup>
