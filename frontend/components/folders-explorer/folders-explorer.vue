@@ -1,12 +1,14 @@
 <template>
   <div class="bredcrumb-explorer">
-    <folder-explorer-list :folders="folders"/>
+    <folder-explorer-list :folders="folders" @select-folder="(folderId: string)=>emit('select-folder', folderId)"/>
   </div>
 </template>
 
 <script setup lang='ts'>
 import { useNuxtApp } from "#app";
 import { onMounted, ref } from "vue";
+
+const emit = defineEmits(['select-folder'])
 
 const { $api } = useNuxtApp();
 

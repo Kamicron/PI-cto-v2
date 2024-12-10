@@ -1,6 +1,10 @@
 <template>
-  <div v-if="!isLoggedIn">Connectez-vous</div>
-  <div class="folder" v-else-if="folder">
+  <!-- <div v-if="!isLoggedIn">Connectez-vous</div> -->
+   <div class="folder">
+    <folders-explorer @select-folder="(id: string) => folderId = id"/>
+    <folder-content :selected-folder-id="folderId"/>
+  <!-- <div v-if="folder">
+
     <div v-if="folder.name && !isModifyFolderName" style="display: flex;">
       <h1>{{ folder.name }}</h1>
       <PiButton label="test" />
@@ -31,8 +35,9 @@
         <p>{{ photo.name }}</p>
       </div>
     </div>
-  </div>
-  <loader v-else />
+  </div>  -->
+</div>
+  <!-- <loader v-else /> -->
 </template>
 
 
@@ -44,41 +49,32 @@ import { useNuxtApp } from "#app";
 import { useAuthStore } from "@/stores/auth";
 import { watch } from "vue";
 
-// ------------------
-
-// ------ Type ------
-
-// ------------------
-
-// ----- Define -----
-
-// ------------------
-
-// ------ Const -----
 const router = useRouter();
-const folderId = '495e09c7-e09d-481e-9c29-ae62e58fc25b';
+// const folderId = '495e09c7-e09d-481e-9c29-ae62e58fc25b';
 const authStore = useAuthStore();
 
-// ------------------
-
-// ---- Reactive ----
 const folder = ref();
+const folderId = ref();
 const folderName = ref<string>('')
 const photos = ref([]);
 const isModifyFolderName = ref<boolean>(false)
 const { $api } = useNuxtApp();
 const isLoggedIn = ref(authStore.isLoggedIn); 
-// ------------------
 
-// ---- Computed ----
+async function getFolder(id: string) {
+  console.log(id);
+  
+  try {
+    const { data } = await $api.get(`/folders/${id}`)
+    folder.value = data || { name: '', children: [], parent: null }
+    photos.value = data.photos || []
+    folderName.value = data.name
+    console.log('folder.value', folder.value);
 
-// ------------------
-
-// ------ Hooks -----
-
-// ------------------
-
-// --- Async Func ---
+  } catch (error) {
+    console.error("Erreur lors de la récupération des données :", error)
+  }
+}
 
 async function modifyFolderName() {
   console.log(folderName.value);
@@ -151,6 +147,65 @@ watch(
     }
   }
 }
+.folder {
+  display: flex;
+  gap: 20px;
+  margin-top: 20px;
+  &__main {
+    width: 100%;
+  }
+  &__name {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 20px;
+  }
+
+  &__images-container {
+    margin-left: 20px;
+  }
+
+  &__images {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+    gap: 20px;
+
+    &--card {
+      flex: 1 1 calc(33.333% - 20px);
+      max-width: calc(33.333% - 20px);
+      min-width: 200px;
+      margin: 0;
+
+      @media (max-width: 768px) {
+        flex: 1 1 calc(50% - 20px);
+        max-width: calc(50% - 20px);
+      }
+
+      @media (max-width: 480px) {
+        flex: 1 1 100%;
+        max-width: 100%;
+      }
+    }
+  }
+
+  &__subfolder {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  &__image {
+    width: 150px;
+    text-align: center;
+
+    img {
+      max-width: 100%;
+      border-radius: 8px;
+    }
+  }
+}
+
 
 .SubFolder {
   display: flex;

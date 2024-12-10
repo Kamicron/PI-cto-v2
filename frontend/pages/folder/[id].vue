@@ -1,6 +1,6 @@
 <template>
   <div class="folder" v-if="folder">
-    <folders-explorer />
+    <folders-explorer @select-folder="(id: string) => getFolder(id)"/>
     <div class="folder__main">
       <div v-if="folderName && !isModifyFolderName" class="folder__name">
       <h1>{{ folderName }}</h1>
@@ -66,15 +66,11 @@ import { useRoute, useRouter } from "vue-router";
 import { useNuxtApp } from "#app";
 import { useRuntimeConfig } from "nuxt/app";
 
-// ------------------
-
-// ------ Type ------
 interface ILightFolder {
   id: string;
   createdAt: Date;
   name: string;
 }
-
 
 interface IFolder {
   id: string;
@@ -83,17 +79,13 @@ interface IFolder {
   children: ILightFolder[];
   parent: ILightFolder | null;
 }
-// ------------------
 
-// ----- Define -----
 const alertRef = ref(null);
 
 const showMessageAlert = (status: 'success' | 'error', message: string) => {
   alertRef.value?.addMessage(status, message);
 };
-// ------------------
 
-// ------ Const -----
 const route = useRoute()
 const router = useRouter()
 const folderId = route.params.id
@@ -120,7 +112,7 @@ const { $api } = useNuxtApp();
 
 // ------ Hooks -----
 onMounted(async () => {
-  fetchFolder()
+  // fetchFolder()
 });
 // ------------------
 
@@ -180,9 +172,9 @@ async function deletePhoto(photoId: string) {
   }
 }
 
-async function fetchFolder() {
+async function getFolder(id: string) {
   try {
-    const { data } = await $api.get(`/folders/${folderId}`)
+    const { data } = await $api.get(`/folders/${id}`)
     folder.value = data || { name: '', children: [], parent: null }
     photos.value = data.photos || []
     folderName.value = data.name
