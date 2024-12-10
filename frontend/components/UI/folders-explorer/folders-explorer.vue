@@ -1,11 +1,7 @@
 <template>
-    <div class="bredcrumb-explorer">
-      <ul>
-        <li v-for="(folder, index) in folders" :key="index">
-          <font-awesome-icon :icon="['fad', 'folder-closed']" />{{ folder.name }}
-        </li>
-      </ul>
-    </div>
+  <div class="bredcrumb-explorer">
+    <folder-explorer-list :folders="folders"/>
+  </div>
 </template>
 
 <script setup lang='ts'>
@@ -31,11 +27,11 @@ async function fetchFolder() {
 </script>
 
 <style lang='scss' scoped>
-    .bredcrumb-explorer{
-      width: 275px;
-      height: calc(100dvh - 100px);
-      padding: 10px;
-      border: solid 1px;
-      border-radius: $border-radius;
-    }
+  .bredcrumb-explorer{
+    width: 275px;
+    height: calc(100dvh - 100px);
+    padding: 10px;
+    border: solid 1px;
+    border-radius: $border-radius;
+  }
 </style>

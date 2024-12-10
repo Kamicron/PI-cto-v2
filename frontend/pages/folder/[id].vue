@@ -1,6 +1,6 @@
 <template>
   <div class="folder" v-if="folder">
-    <bredcrumb-explorer />
+    <folders-explorer />
     <div class="folder__main">
       <div v-if="folderName && !isModifyFolderName" class="folder__name">
       <h1>{{ folderName }}</h1>
