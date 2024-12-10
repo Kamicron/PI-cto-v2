@@ -9,6 +9,7 @@
 
     <div v-if="files.length" class="upload-photo__preview">
       <h3>Aperçu des fichiers</h3>
+      <pre>{{ preview }}</pre>
       <ul>
         <li v-for="(file, index) in preview" :key="index" class="upload-photo__preview-item">
           <img v-if="file.type.startsWith('image/')" :src="file.preview" :alt="file.name"

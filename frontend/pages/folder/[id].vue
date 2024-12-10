@@ -1,24 +1,26 @@
 <template>
   <div class="folder" v-if="folder">
-    <div v-if="folderName && !isModifyFolderName" class="folder__name">
+    <bredcrumb-explorer />
+    <div class="folder__main">
+      <div v-if="folderName && !isModifyFolderName" class="folder__name">
       <h1>{{ folderName }}</h1>
 
       <pi-button label="éditer" :icon="['fas', 'pen']" tiny @click="isModifyFolderName = true" />
 
       <!-- <button @click="isModifyFolderName = true"><font-awesome-icon :icon="['fas', 'pen']" /></button> -->
-    </div>
-    <div v-if="isModifyFolderName">
+      </div>
+      <div v-if="isModifyFolderName">
       <input type="text" v-model="folderName">
       <button @click="modifyFolderName">Modifier</button>
-    </div>
+      </div>
 
-    <PiButton v-if="folder.parent" @click="goToParentFolder" :bgColor="'#3f556d'" label="Dossier parent"
-      :icon="['fas', 'right-from-bracket']" tiny />
+      <PiButton v-if="folder.parent" @click="goToParentFolder" :bgColor="'#3f556d'" label="Dossier parent"
+        :icon="['fas', 'right-from-bracket']" tiny />
 
 
-    <p>{{ errorMessage }}</p>
+      <p>{{ errorMessage }}</p>
 
-    <div class="folder__subfolder">
+      <div class="folder__subfolder">
       <h2>Sous-dossiers</h2>
 
       <PiButton @click="openModal" :icon="['fas', 'folder-plus']" label="Ajouter un dossier" tiny />
@@ -26,19 +28,19 @@
         <PIFolder v-for="child in folder.children" :key="child.id" :folder="child" />
       </div>
       <p v-else>Aucun sous-dossier.</p>
-    </div>
-
-    <h2>Photos</h2>
-    <div class="folder__images-container">
-      <div class="folder__images">
-        <ImageCard class="folder__images--card" v-for="photo in photos" :key="photo.id"
-          :src="`${apiUrl}/uploads/${photo.url}`" :alt="photo.name" :name="photo.name"
-          @delete="deletePhoto(photo.id)" />
       </div>
+
+      <h2>Photos</h2>
+      <div class="folder__images-container">
+        <div class="folder__images">
+          <ImageCard class="folder__images--card" v-for="photo in photos" :key="photo.id"
+            :src="`${apiUrl}/uploads/${photo.url}`" :alt="photo.name" :name="photo.name"
+            @delete="deletePhoto(photo.id)" />
+        </div>
+      </div>
+
+      <uploader :folderId="folderId" @upload="fetchFolder()" />
     </div>
-
-    <uploader :folderId="folderId" @upload="fetchFolder()" />
-
   </div>
   <loader v-else />
 
@@ -222,6 +224,12 @@ watch(
 
 <style lang='scss' scoped>
 .folder {
+  display: flex;
+  gap: 20px;
+  margin-top: 20px;
+  &__main {
+    width: 100%;
+  }
   &__name {
     display: flex;
     justify-content: center;
