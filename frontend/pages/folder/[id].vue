@@ -31,8 +31,8 @@
     <h2>Photos</h2>
     <div class="folder__images-container">
       <div class="folder__images">
-        <ImageCard class="folder__images--card" v-for="photo in photos" :key="photo.id"
-          :src="`${apiUrl}/uploads/${photo.url}`" :alt="photo.name" :name="photo.name"
+        <image-card class="folder__images--card" v-for="photo in photos" :key="photo.id"
+          :src="`${apiUrl}/uploads/${photo.url}`" :alt="photo.name" :name="photo.name" :id="photo.id"
           @delete="deletePhoto(photo.id)" />
       </div>
     </div>

@@ -28,6 +28,7 @@ body {
   max-width: $container-width;
   margin: auto;
   font-family: 'Montserrat', sans-serif;
-  background-color: $white-color;;
+  background-color: $white-color;
+  margin-top: 70px;
 }
 </style>

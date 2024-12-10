@@ -79,7 +79,7 @@ defineProps({
     &__icon {
       background-color: rgba(0, 0, 0, 0.30);
       width: 25px;
-      height: 25px;
+      height: 100%;
       padding: 15px;
       border-radius: 10px 0 10px 0;
       color: $white-color;
@@ -102,7 +102,7 @@ defineProps({
     .button {
       &__icon {
         width: 15px;
-        height: 15px;
+        height: 100%;
         padding: 8px;
       }
 
