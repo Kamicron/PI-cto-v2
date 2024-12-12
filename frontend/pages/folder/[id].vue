@@ -31,9 +31,9 @@
     <h2>Photos</h2>
     <div class="folder__images-container">
       <div class="folder__images">
-        <ImageCard class="folder__images--card" v-for="photo in photos" :key="photo.id"
-          :src="`${apiUrl}/uploads/${photo.url}`" :alt="photo.name" :name="photo.name"
-          @delete="deletePhoto(photo.id)" />
+        <ImageCard @click="openPhotoModal({ src: `${apiUrl}/uploads/${photo.url}`, name: photo.name })"
+          class="folder__images--card" v-for="photo in photos" :key="photo.id" :src="`${apiUrl}/uploads/${photo.url}`"
+          :alt="photo.name" :name="photo.name" @delete="deletePhoto(photo.id)" />
       </div>
     </div>
 
@@ -51,6 +51,18 @@
       <div class="addFolder__button">
         <pi-button tiny bg-color="#28a745" @click="saveFolder" :icon="['far', 'floppy-disk']" label="Sauvegarder" />
         <pi-button tiny bg-color="#dc3545" @click="isModalOpen = false" :icon="['fas', 'xmark']" label="Annuler" />
+      </div>
+    </div>
+  </modal>
+
+  <modal :isOpen="isOpenPhoto" @close="isOpenPhoto = false">
+    <div class="modalPhoto" v-if="selectedPhoto">
+      <div class="modalPhoto__file">
+        <img :src="selectedPhoto.src" :alt="selectedPhoto.name" class="modalPhoto__file--image" />
+      </div>
+      <div class="modalPhoto__information">
+        <p>nom: <span class="modalPhoto__information--value">{{ selectedPhoto.name }}</span></p>
+        <p>url: <span class="modalPhoto__information--value">{{ selectedPhoto.src }}</span></p>
       </div>
     </div>
   </modal>
@@ -98,6 +110,8 @@ const folderId = route.params.id
 const { public: config } = useRuntimeConfig()
 const apiUrl = config.apiBaseUrl;
 const isModalOpen = ref<boolean>(false)
+const transparentBgSrc = "http://api.pi-cto.top/uploads/16d20c54-45bf-4dba-bbc1-9e377f7c224e/1733761480896-transparent.jpg";
+
 // ------------------
 
 // ---- Reactive ----
@@ -109,7 +123,8 @@ const nameFolder = ref<string>('')
 
 const isModifyFolderName = ref<boolean>(false)
 const { $api } = useNuxtApp();
-
+const isOpenPhoto = ref<boolean>(false)
+const selectedPhoto = ref<{ src: string; name: string } | null>(null);
 // ------------------
 
 // ---- Computed ----
@@ -207,6 +222,11 @@ function saveFolder() {
   createFolder()
   isModalOpen.value = false
 }
+
+function openPhotoModal(photo: { src: string; name: string }) {
+  selectedPhoto.value = photo;
+  isOpenPhoto.value = true;
+}
 // ------------------
 
 // ------ Watch -----
@@ -301,5 +321,45 @@ watch(
 
 .back-folder {
   rotate: 180Deg;
+}
+
+.modalPhoto {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+  gap: 20px;
+
+  &__file {
+    height: 70vh;
+    width: auto;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    margin: 10px;
+
+
+    &--image {
+      max-height: 100%;
+      max-width: 100%;
+      border-radius: 8px;
+      object-fit: contain;
+      border-radius: $border-radius;
+      border: 1px solid $dark-color;
+      box-shadow: $box-shadow;
+    }
+  }
+
+  &__information {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    align-items: start;
+
+    &--value {
+      color: $dynamic-color;
+    }
+  }
 }
 </style>

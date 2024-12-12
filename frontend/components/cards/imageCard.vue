@@ -11,7 +11,7 @@
       <p class="image-card__footer--name">{{ name }}</p>
       <div class="link-container">
         <NuxtLink class="link-container__link" :to="src" :title="src" target="_blank">{{ shortUrl }}</NuxtLink>
-        <pi-button class="link-container__copy-buton" @click="copyLink(src)" label="Copier" tiny :icon="['far', 'copy']" />
+        <pi-button class="link-container__copy-buton" @click="(event) => { event.stopPropagation(); copyLink(src); }" label="Copier" tiny :icon="['far', 'copy']" />
       </div>
       <div v-if="copiedMessage" class="image-card__footer--dialog">Lien copié !</div>
     </div>
@@ -89,6 +89,7 @@ function truncateMiddle(text: string, maxLength: number) {
   flex-direction: column;
   justify-content: space-between;
   align-items: center;
+  cursor: pointer;
 
   &__delete {
     position: absolute;
