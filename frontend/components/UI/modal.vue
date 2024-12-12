@@ -93,14 +93,14 @@ const closeModalOutside = (event: MouseEvent) => {
 }
 
 .modal-wrapper {
-  background-color: #fff;
+  background-color: $gray-medium-color;
   padding: 10px;
   max-width: var(--max-width);
   width: 90%;
   position: relative;
-  border: 1px solid #dcdcdc;
+  border: 1px solid $dark-color;
   box-shadow: 10px 10px 8px rgba(0, 0, 0, 0.5);
-  border-radius: 3px;
+  border-radius: $border-radius;
   transition: all 0.3s ease;
 }
 
@@ -119,7 +119,7 @@ const closeModalOutside = (event: MouseEvent) => {
 }
 
 .modal-content {
-  max-height: 70vh;
+  max-height: 80vh;
   overflow-y: auto;
   margin: 20px 0;
   padding: 0 5px;
