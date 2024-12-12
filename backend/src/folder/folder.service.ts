@@ -32,15 +32,34 @@ export class FolderService {
   async findOne(id: string): Promise<Folder> {
     return this.folderRepository.findOne({
       where: { id },
-      relations: ['parent', 'children', 'photos'], // Inclure les photos dans la réponse
+      relations: ['parent', 'children', 'photos'],
     });
   }
 
   async findRootFolders(): Promise<Folder[]> {
-    return this.folderRepository.find({
-      where: { parent: null }, // Filtrer les dossiers racines
-      relations: ['children'], // Charger les sous-dossiers pour inclure leurs informations
+    const folders = await this.folderRepository.find({
+      relations: ['parent', 'children'],
     });
+
+    const folderMap = new Map<string, Folder>();
+    folders.forEach((folder) => {
+      folder.children = [];
+      folderMap.set(folder.id, folder);
+    });
+
+    const roots: Folder[] = [];
+    folders.forEach((folder) => {
+      if (folder.parent) {
+        const parent = folderMap.get(folder.parent.id);
+        if (parent) {
+          parent.children.push(folder);
+        }
+      } else {
+        roots.push(folder);
+      }
+    });
+
+    return roots;
   }
 
   async updateName(id: string, newName: string): Promise<Folder> {
