@@ -38,12 +38,13 @@
 
 <script setup lang='ts'>
 // ----- Import -----
-import { ref  } from "vue";
+import { ref } from "vue";
 import { useRouter } from "vue-router";
 import { useNuxtApp } from "#app";
 import { useAuthStore } from "@/stores/auth";
 import { watch } from "vue";
-
+import { EToast } from "vue3-modern-toast";
+import { useAxiosError } from '../composables/useAxiosError';
 // ------------------
 
 // ------ Type ------
@@ -58,7 +59,8 @@ import { watch } from "vue";
 const router = useRouter();
 const folderId = '495e09c7-e09d-481e-9c29-ae62e58fc25b';
 const authStore = useAuthStore();
-
+const { getErrorMessage } = useAxiosError();
+const { $toast } = useNuxtApp()
 // ------------------
 
 // ---- Reactive ----
@@ -67,7 +69,7 @@ const folderName = ref<string>('')
 const photos = ref([]);
 const isModifyFolderName = ref<boolean>(false)
 const { $api } = useNuxtApp();
-const isLoggedIn = ref(authStore.isLoggedIn); 
+const isLoggedIn = ref(authStore.isLoggedIn);
 // ------------------
 
 // ---- Computed ----
@@ -81,12 +83,31 @@ const isLoggedIn = ref(authStore.isLoggedIn);
 // --- Async Func ---
 
 async function modifyFolderName() {
-  console.log(folderName.value);
-  const { data } = await $api.patch(`/folders/${folderId}/name`, { name: folderName.value })
-  console.log({ data });
-  folderName.value = data.name
+  console.log('folderName.value');
+  try {
+    const { data } = await $api.patch(`/folders/${folderId}/name`, { name: folderName.value })
+    folderName.value = data.name
 
-  isModifyFolderName.value = false
+    isModifyFolderName.value = false
+
+    console.log('Nom de la dossier modifié avec succès');
+
+    $toast.show({
+      message: 'Nom de la dossier modifié avec succès',
+      type: EToast.SUCCESS,
+      duration: 3000,
+      dismissible: true,
+      icon: '✨'
+    })
+  } catch (error: any) {
+    $toast.show({
+      message: getErrorMessage(error),
+      type: EToast.ERROR,
+      duration: 3000,
+      dismissible: true,
+      icon: '⛔'
+    })
+  }
 }
 
 // ------------------
@@ -103,14 +124,9 @@ function goToParentFolder() {
 watch(
   () => authStore.isLoggedIn,
   async (isLoggedIn) => {
-    console.log('watch');
-    
-    console.log('isLoggedIn', isLoggedIn);
     if (isLoggedIn) {
-      
+
       try {
-        console.log('folderId', folderId);
-        
         const { data } = await $api.get(`/folders/${folderId}`, {
           headers: { Authorization: `Bearer ${authStore.token}` },
         });
@@ -124,7 +140,7 @@ watch(
       photos.value = [];
     }
   },
-  { immediate: true } 
+  { immediate: true }
 );
 
 

@@ -31,8 +31,8 @@
     <h2>Photos</h2>
     <div class="folder__images-container">
       <div class="folder__images">
-        <ImageCard class="folder__images--card" v-for="photo in photos" :key="photo.id"
-          :src="`${apiUrl}/uploads/${photo.url}`" :alt="photo.name" :name="photo.name"
+        <image-card class="folder__images--card" v-for="photo in photos" :key="photo.id"
+          :src="`${apiUrl}/uploads/${photo.url}`" :alt="photo.name" :name="photo.name" :id="photo.id"
           @delete="deletePhoto(photo.id)" />
       </div>
     </div>
@@ -63,6 +63,8 @@ import { ref, onMounted, watch } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { useNuxtApp } from "#app";
 import { useRuntimeConfig } from "nuxt/app";
+import { EToast } from "vue3-modern-toast";
+import { useAxiosError } from '../../composables/useAxiosError';
 
 // ------------------
 
@@ -84,11 +86,6 @@ interface IFolder {
 // ------------------
 
 // ----- Define -----
-const alertRef = ref(null);
-
-const showMessageAlert = (status: 'success' | 'error', message: string) => {
-  alertRef.value?.addMessage(status, message);
-};
 // ------------------
 
 // ------ Const -----
@@ -109,6 +106,8 @@ const nameFolder = ref<string>('')
 
 const isModifyFolderName = ref<boolean>(false)
 const { $api } = useNuxtApp();
+const { getErrorMessage } = useAxiosError();
+const { $toast } = useNuxtApp()
 
 // ------------------
 
@@ -127,6 +126,13 @@ async function modifyFolderName() {
     const { data } = await $api.patch(`/folders/${folderId}/name`, { name: folderName.value })
 
     if (!data) {
+      $toast.show({
+      message: 'Une erreur est survenue, aucune donnée retournée.',
+      type: EToast.WARNING,
+      duration: 3000,
+      dismissible: true,
+      icon: '✨'
+    })
       errorMessage.value = 'Une erreur est survenue, aucune donnée retournée.'
       return
     }
@@ -135,7 +141,22 @@ async function modifyFolderName() {
 
     isModifyFolderName.value = false
 
+    $toast.show({
+      message: 'Nom du dossier modifié avec succès',
+      type: EToast.SUCCESS,
+      duration: 3000,
+      dismissible: true,
+      icon: '✨'
+    })
   } catch (error: any) {
+    $toast.show({
+      message: getErrorMessage(error),
+      type: EToast.ERROR,
+      duration: 3000,
+      dismissible: true,
+      icon: '⛔'
+    })
+
     if (error.response && error.response.data && error.response.data.message) {
       errorMessage.value = error.response.data.message
     } else {
@@ -159,7 +180,21 @@ async function createFolder() {
     nameFolder.value = ""
 
     fetchFolder()
+    $toast.show({
+      message: 'Dossier créé avec succès',
+      type: EToast.SUCCESS,
+      duration: 3000,
+      dismissible: true,
+      icon: '✨'
+    })
   } catch (error: any) {
+    $toast.show({
+      message: getErrorMessage(error),
+      type: EToast.ERROR,
+      duration: 3000,
+      dismissible: true,
+      icon: '⛔'
+    })
     errorMessage.value = error.response?.data?.message || "Une erreur est survenue.";
   }
 }
@@ -170,11 +205,23 @@ async function deletePhoto(photoId: string) {
 
     if (data.success) {
       photos.value = photos.value.filter(photo => photo.id !== photoId);
-    } else {
-      console.error('Erreur lors de la suppression de l\'image.');
     }
+
+    $toast.show({
+      message: 'Image supprimée avec succès',
+      type: EToast.SUCCESS,
+      duration: 3000,
+      dismissible: true,
+      icon: '✨'
+    })
   } catch (error) {
-    console.error('Erreur lors de la suppression de l\'image :', error);
+    $toast.show({
+      message: getErrorMessage(error),
+      type: EToast.ERROR,
+      duration: 3000,
+      dismissible: true,
+      icon: '⛔'
+    })
   }
 }
 
@@ -187,7 +234,13 @@ async function fetchFolder() {
     console.log('folder.value', folder.value);
 
   } catch (error) {
-    console.error("Erreur lors de la récupération des données :", error)
+    $toast.show({
+      message: getErrorMessage(error),
+      type: EToast.ERROR,
+      duration: 3000,
+      dismissible: true,
+      icon: '⛔'
+    })
   }
 }
 // ------------------

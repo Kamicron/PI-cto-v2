@@ -5057,7 +5057,14 @@ vue-router@^4.4.5, vue-router@latest:
   dependencies:
     "@vue/devtools-api" "^6.6.4"
 
-vue@^3.5.13, vue@latest:
+vue3-modern-toast@^1.0.32:
+  version "1.0.32"
+  resolved "https://registry.yarnpkg.com/vue3-modern-toast/-/vue3-modern-toast-1.0.32.tgz#e66b077f48857907e4f274391192d66a31f8ba9e"
+  integrity sha512-mAq7G5Ke93fvFYSK2WX3CdaacZ69A185ef7axnWIukoXHQfz/CZ4mMnf1/4lZ/DUBfxqtnd4fwpzT4C0rHviUQ==
+  dependencies:
+    vue "^3.4.0"
+
+vue@^3.4.0, vue@^3.5.13, vue@latest:
   version "3.5.13"
   resolved "https://registry.yarnpkg.com/vue/-/vue-3.5.13.tgz#9f760a1a982b09c0c04a867903fc339c9f29ec0a"
   integrity sha512-wmeiSMxkZCSc+PM2w2VRsOYAZC8GdipNFRTsLSfodVqI9mbejKeXEGr8SckuLnrQPGe3oJN5c3K0vpoU9q/wCQ==

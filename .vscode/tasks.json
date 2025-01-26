@@ -1,0 +1,19 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"type": "npm",
+			"script": "frontend",
+			"problemMatcher": [],
+			"label": "npm: frontend",
+			"detail": "cd frontend; yarn dev"
+		},
+		{
+			"type": "npm",
+			"script": "backend",
+			"problemMatcher": [],
+			"label": "npm: backend",
+			"detail": "cd backend; yarn start:dev"
+		}
+	]
+}
