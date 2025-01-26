@@ -32,15 +32,39 @@ export class FolderService {
   async findOne(id: string): Promise<Folder> {
     return this.folderRepository.findOne({
       where: { id },
-      relations: ['parent', 'children', 'photos'], // Inclure les photos dans la réponse
+      relations: ['parent', 'children', 'photos'],
     });
   }
 
   async findRootFolders(): Promise<Folder[]> {
-    return this.folderRepository.find({
-      where: { parent: null }, // Filtrer les dossiers racines
-      relations: ['children'], // Charger les sous-dossiers pour inclure leurs informations
-    });
+    return this.folderRepository
+      .createQueryBuilder('folder')
+      .leftJoinAndSelect('folder.children', 'children')
+      .where('folder.parent IS NULL')
+      .getMany();
+  }
+
+  async findOrCreateFolder(name: string, parentId?: string): Promise<Folder> {
+    // Chercher d'abord le dossier
+    let folder: Folder;
+    
+    if (parentId) {
+      folder = await this.folderRepository.findOne({
+        where: { name, parent: { id: parentId } },
+        relations: ['parent'],
+      });
+    } else {
+      folder = await this.folderRepository.findOne({
+        where: { name, parent: null },
+      });
+    }
+
+    // Si le dossier n'existe pas, le créer
+    if (!folder) {
+      folder = await this.create(name, parentId);
+    }
+
+    return folder;
   }
 
   async updateName(id: string, newName: string): Promise<Folder> {
@@ -61,8 +85,8 @@ export class FolderService {
     });
 
     if (folder) {
-      folder.children = folder.children || []; // Toujours un tableau
-      folder.photos = folder.photos || []; // Toujours un tableau
+      folder.children = folder.children || [];
+      folder.photos = folder.photos || [];
     }
 
     return folder;

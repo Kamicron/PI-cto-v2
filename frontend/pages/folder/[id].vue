@@ -12,7 +12,7 @@
       <button @click="modifyFolderName">Modifier</button>
     </div>
 
-    <PiButton v-if="folder.parent" @click="goToParentFolder" :bgColor="'#3f556d'" label="Dossier parent"
+    <PiButton @click="goToParentFolder" :bgColor="'#3f556d'" label="Dossier parent"
       :icon="['fas', 'right-from-bracket']" tiny />
 
 
@@ -249,6 +249,8 @@ async function fetchFolder() {
 function goToParentFolder() {
   if (folder.value.parent) {
     router.push(`/folder/${folder.value.parent.id}`)
+  } else {
+    router.push('/folder')
   }
 }
 
