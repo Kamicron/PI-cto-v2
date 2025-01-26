@@ -57,7 +57,7 @@ import { useAxiosError } from '../composables/useAxiosError';
 
 // ------ Const -----
 const router = useRouter();
-const folderId = '495e09c7-e09d-481e-9c29-ae62e58fc25b';
+const folderId = '';
 const authStore = useAuthStore();
 const { getErrorMessage } = useAxiosError();
 const { $toast } = useNuxtApp()

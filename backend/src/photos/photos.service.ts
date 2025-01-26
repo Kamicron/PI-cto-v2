@@ -1,26 +1,67 @@
 import { Injectable } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { Photo } from './entities/photo.entity';
+import { FolderService } from '../folder/folder.service';
 import { CreatePhotoDto } from './dto/create-photo.dto';
 import { UpdatePhotoDto } from './dto/update-photo.dto';
+import { Express } from 'express';
 
 @Injectable()
 export class PhotosService {
-  create(createPhotoDto: CreatePhotoDto) {
-    return 'This action adds a new photo';
+  constructor(
+    @InjectRepository(Photo)
+    private photoRepository: Repository<Photo>,
+    private folderService: FolderService,
+  ) {}
+
+  async create(createPhotoDto: { name: string; file: Express.Multer.File; folderId: string }) {
+    const folder = await this.folderService.findOne(createPhotoDto.folderId);
+    if (!folder) {
+      throw new Error('Folder not found');
+    }
+
+    const photo = this.photoRepository.create({
+      name: createPhotoDto.name,
+      url: `${folder.id}/${createPhotoDto.file.filename}`,
+      folder,
+    });
+
+    return this.photoRepository.save(photo);
   }
 
-  findAll() {
-    return `This action returns all photos`;
+  async findAll() {
+    return this.photoRepository.find();
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} photo`;
+  async findOne(id: string) {
+    return this.photoRepository.findOne({
+      where: { id },
+      relations: ['folder'],
+    });
   }
 
-  update(id: number, updatePhotoDto: UpdatePhotoDto) {
-    return `This action updates a #${id} photo`;
+  async findByFolderId(folderId: string) {
+    return this.photoRepository.find({
+      where: { folder: { id: folderId } },
+      relations: ['folder'],
+    });
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} photo`;
+  async update(id: string, updatePhotoDto: UpdatePhotoDto) {
+    const photo = await this.findOne(id);
+    if (!photo) {
+      throw new Error('Photo not found');
+    }
+    Object.assign(photo, updatePhotoDto);
+    return this.photoRepository.save(photo);
+  }
+
+  async remove(id: string) {
+    const photo = await this.findOne(id);
+    if (!photo) {
+      throw new Error('Photo not found');
+    }
+    return this.photoRepository.remove(photo);
   }
 }

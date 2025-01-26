@@ -79,7 +79,7 @@ const login = async () => {
       dismissible: true,
       icon: '✨'
     })
-    router.push('/folder/495e09c7-e09d-481e-9c29-ae62e58fc25b')
+    router.push('/folder/')
 
   } catch (e) {
     $toast.show({

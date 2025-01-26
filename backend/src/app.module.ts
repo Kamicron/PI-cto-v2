@@ -11,6 +11,8 @@ import { ImagesModule } from './images/images.module';
 import { PhotosModule } from './photos/photos.module';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
+import { ApiKeysModule } from './api-keys/api-keys.module';
+import { GameApiModule } from './game-api/game-api.module';
 
 @Module({
   imports: [
@@ -36,6 +38,8 @@ import { join } from 'path';
     AuthModule,
     ImagesModule,
     PhotosModule,
+    ApiKeysModule,
+    GameApiModule,
   ],
   controllers: [AppController, AuthController],
   providers: [AppService],
