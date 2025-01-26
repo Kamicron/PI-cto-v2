@@ -36,6 +36,8 @@
 // ----- Import -----
 import { ref } from "vue";
 import { useNuxtApp } from "#app";
+import { EToast } from "vue3-modern-toast";
+import { useAxiosError } from '../../composables/useAxiosError';
 // ------------------
 
 // ------ Type ------
@@ -52,7 +54,8 @@ const props = defineProps({
 
 // ------ Const -----
 const { $api } = useNuxtApp();
-
+const { $toast } = useNuxtApp()
+const { getErrorMessage } = useAxiosError();
 // ------------------
 
 // ---- Reactive ----
@@ -91,9 +94,22 @@ async function uploadFiles() {
     emit("upload");
     files.value = [];
     preview.value = [];
-  } catch (error: any) {
-    console.log('error', error);
 
+    $toast.show({
+      message: 'Image téléverser avec succés',
+      type: EToast.SUCCESS,
+      duration: 3000,
+      dismissible: true,
+      icon: '✨'
+    })
+  } catch (error: any) {
+    $toast.show({
+      message: getErrorMessage(error),
+      type: EToast.ERROR,
+      duration: 3000,
+      dismissible: true,
+      icon: '⛔'
+    })
     errorMessage.value = error.response?.data?.message || "Erreur inconnue.";
   } finally {
     isUploading.value = false;

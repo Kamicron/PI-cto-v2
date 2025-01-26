@@ -33,9 +33,6 @@
 
     </div>
   </modal>
-
-
-  <Alert ref="alertRef" />
 </template>
 
 
@@ -45,7 +42,8 @@
 import { onMounted, ref } from "vue";
 import { useNuxtApp } from "#app";
 import { useRuntimeConfig } from "nuxt/app";
-
+import { EToast } from "vue3-modern-toast";
+import { useAxiosError } from '../../composables/useAxiosError';
 // ------------------
 
 // ----- Define -----
@@ -76,6 +74,8 @@ const transparentBgSrc = "http://api.pi-cto.top/uploads/16d20c54-45bf-4dba-bbc1-
 const { $api } = useNuxtApp();
 const { public: config } = useRuntimeConfig()
 const apiUrl = config.apiBaseUrl;
+const { getErrorMessage } = useAxiosError();
+const { $toast } = useNuxtApp()
 // ------------------
 
 // ---- Reactive ----
@@ -83,7 +83,6 @@ const shortUrl = ref<string>('')
 const isEditingName = ref<boolean>(false);
 const newName = ref<string>('');
 const copiedMessage = ref<boolean>(false);
-const alertRef = ref(null);
 const namefile = ref<string>(props.name)
 const srcfile = ref<string>(props.src)
 const isWarningExtension = ref<boolean>(false)
@@ -107,7 +106,12 @@ async function copyLink(item: string) {
       copiedMessage.value = false;
     }, 3000);
   } catch (error) {
-    console.error('Erreur lors de la copie du lien :', error);
+    $toast.show({
+      message: getErrorMessage(error),
+      type: EToast.WARNING,
+      duration: 3000,
+      dismissible: true,
+    })
   }
 }
 
@@ -121,10 +125,26 @@ async function renameImage() {
     srcfile.value = `${apiUrl}/uploads/${data.updatedPhoto.folder.id}/${data.updatedPhoto.name}`;
 
     isEditingName.value = false;
-    showMessageAlert('success', `image renommée avec succés`)
+
+    console.log('test');
+    
+
+    $toast.show({
+      message: 'Image renommée avec succés',
+      type: EToast.SUCCESS,
+      duration: 3000,
+      dismissible: true,
+      icon: '✨'
+    })
 
   } catch (error) {
-    showMessageAlert('error', `'Erreur lors du renommage de l'image :', ${error}`)
+    $toast.show({
+      message: getErrorMessage(error),
+      type: EToast.ERROR,
+      duration: 3000,
+      dismissible: true,
+      icon: '⛔'
+    })
   }
 }
 // ------------------
@@ -155,7 +175,13 @@ function cancelEditing() {
 function validateNewName(newName: string, currentName: string): boolean {
   const extensionRegex = /\.[a-zA-Z0-9]+$/;
   if (!extensionRegex.test(newName)) {
-    showMessageAlert('error', `Le nouveau nom doit inclure une extension valide.`)
+    $toast.show({
+      message: 'Le nouveau nom doit inclure une extension valide.',
+      type: EToast.WARNING,
+      duration: 3000,
+      dismissible: true,
+      icon: '✨'
+    })
 
     return false;
   }
@@ -168,12 +194,6 @@ function getExtension(fileName: string): string {
   return match ? match[0] : '';
 }
 
-
-function showMessageAlert(status: 'success' | 'error' | 'info' | 'warning', message: string) {
-  alertRef.value?.addMessage(status, message);
-};
-
-
 function handleExtensionChange() {
   const currentExtension = getExtension(namefile.value);
   const newExtension = getExtension(newName.value);
@@ -184,22 +204,22 @@ function handleExtensionChange() {
 
   if (currentExtension !== newExtension) {
     warningMessage.value = `Vous êtes sur le point de changer l'extension de "${currentExtension}" à "${newExtension}". Voulez-vous continuer ?`;
-    newNameConfirmed.value = newName.value; 
-    isWarningExtension.value = true; 
+    newNameConfirmed.value = newName.value;
+    isWarningExtension.value = true;
   } else {
-    renameImage(); 
+    renameImage();
   }
 }
 
 function confirmRename() {
-  newName.value = newNameConfirmed.value; 
-  isWarningExtension.value = false; 
-  renameImage(); 
+  newName.value = newNameConfirmed.value;
+  isWarningExtension.value = false;
+  renameImage();
 }
 
 function cancelRename() {
   isWarningExtension.value = false;
-  newName.value = ''; 
+  newName.value = '';
 }
 // ------------------
 </script>
