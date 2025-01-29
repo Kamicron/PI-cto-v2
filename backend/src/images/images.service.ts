@@ -16,7 +16,7 @@ export class ImagesService {
     private readonly folderRepository: Repository<Folder>,
   ) {}
 
-  async uploadImage(folderId: string, file: Express.Multer.File) {
+  async uploadImages(folderId: string, files: Express.Multer.File[]) {
     const folder = await this.folderRepository.findOne({
       where: { id: folderId },
     });
@@ -25,13 +25,18 @@ export class ImagesService {
       throw new Error(`Folder with ID ${folderId} does not exist.`);
     }
 
-    const photo = this.photoRepository.create({
-      name: file.originalname,
-      url: `${folderId}/${file.filename}`,
-      folder,
-    });
+    const uploadedPhotos = await Promise.all(
+      files.map(async (file) => {
+        const photo = this.photoRepository.create({
+          name: file.originalname,
+          url: `${folderId}/${file.filename}`,
+          folder,
+        });
+        return this.photoRepository.save(photo);
+      })
+    );
 
-    return this.photoRepository.save(photo);
+    return uploadedPhotos;
   }
 
   async getPhoto(photoId: string): Promise<Photo> {

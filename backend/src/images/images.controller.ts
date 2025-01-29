@@ -6,11 +6,11 @@ import {
   Patch,
   Delete,
   UseInterceptors,
-  UploadedFile,
+  UploadedFiles,
   UseGuards,
   Body,
 } from '@nestjs/common';
-import { FileInterceptor } from '@nestjs/platform-express';
+import { FilesInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
 import * as fs from 'fs';
 import * as path from 'path';
@@ -24,7 +24,7 @@ export class ImagesController {
 
   @Post(':folderId/upload')
   @UseInterceptors(
-    FileInterceptor('file', {
+    FilesInterceptor('files', 10, {
       storage: diskStorage({
         destination: (req, file, cb) => {
           const folderId = req.params.folderId;
@@ -52,9 +52,9 @@ export class ImagesController {
   )
   async uploadImage(
     @Param('folderId') folderId: string,
-    @UploadedFile() file: Express.Multer.File,
+    @UploadedFiles() files: Express.Multer.File[],
   ) {
-    return this.imagesService.uploadImage(folderId, file);
+    return this.imagesService.uploadImages(folderId, files);
   }
 
   @Get(':photoId')
