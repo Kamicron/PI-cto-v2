@@ -87,7 +87,8 @@ async function uploadFiles() {
   errorMessage.value = "";
 
   const formData = new FormData();
-  files.value.forEach((file) => formData.append("file", file));
+  const numberOfFiles = files.value.length;
+  files.value.forEach((file) => formData.append("files", file));
 
   try {
     await $api.post(`/images/${props.folderId}/upload`, formData);
@@ -96,21 +97,16 @@ async function uploadFiles() {
     preview.value = [];
 
     $toast.show({
-      message: 'Image téléverser avec succés',
+      message: numberOfFiles > 1 ? `${numberOfFiles} images téléversées avec succès` : 'Image téléversée avec succès',
       type: EToast.SUCCESS,
       duration: 3000,
-      dismissible: true,
-      icon: '✨'
-    })
-  } catch (error: any) {
+    });
+  } catch (error) {
     $toast.show({
       message: getErrorMessage(error),
       type: EToast.ERROR,
       duration: 3000,
-      dismissible: true,
-      icon: '⛔'
-    })
-    errorMessage.value = error.response?.data?.message || "Erreur inconnue.";
+    });
   } finally {
     isUploading.value = false;
   }
