@@ -32,15 +32,33 @@ export class FolderService {
   async findOne(id: string): Promise<Folder> {
     return this.folderRepository.findOne({
       where: { id },
-      relations: ['parent', 'children', 'photos'], // Inclure les photos dans la réponse
+      relations: ['parent', 'children', 'photos'],
     });
   }
 
   async findRootFolders(): Promise<Folder[]> {
-    return this.folderRepository.find({
-      where: { parent: null }, // Filtrer les dossiers racines
-      relations: ['children'], // Charger les sous-dossiers pour inclure leurs informations
-    });
+    try {
+      const folders = await this.folderRepository.find({ relations: ['parent'] });
+  
+      const folderMap = new Map(folders.map(folder => [folder.id, { ...folder, children: [] }]));
+  
+      return folders.reduce<Folder[]>((roots, folder) => {
+        if (folder.parent) {
+          const parent = folderMap.get(folder.parent.id);
+          if (parent) {
+            parent.children.push(folderMap.get(folder.id)!);
+          } else {
+            console.error(`Parent not found for folder: ${folder.id}`);
+          }
+        } else {
+          roots.push(folderMap.get(folder.id)!);
+        }
+        return roots;
+      }, []);
+    } catch (error) {
+      console.error('Error fetching root folders:', error);
+      throw new Error('Failed to fetch root folders');
+    }
   }
 
   async updateName(id: string, newName: string): Promise<Folder> {
