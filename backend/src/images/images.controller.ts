@@ -3,17 +3,22 @@ import {
   Param,
   Get,
   Post,
+  Patch,
   Delete,
   UseInterceptors,
   UploadedFile,
+  UseGuards,
+  Body,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
 import * as fs from 'fs';
 import * as path from 'path';
 import { ImagesService } from './images.service';
+import { AuthGuard } from '@nestjs/passport';
 
 @Controller('images')
+@UseGuards(AuthGuard('jwt'))
 export class ImagesController {
   constructor(private readonly imagesService: ImagesService) {}
 
@@ -55,6 +60,15 @@ export class ImagesController {
   @Get(':photoId')
   async getPhoto(@Param('photoId') photoId: string) {
     return this.imagesService.getPhoto(photoId);
+  }
+
+  @Patch(':id/rename')
+  async renameImage(@Param('id') id: string, @Body('newName') newName: string) {
+    if (!newName) {
+      throw new Error('Le nouveau nom est requis.');
+    }
+
+    return this.imagesService.renameImage(id, newName);
   }
 
   @Delete(':id')

@@ -20,6 +20,7 @@
     "pinia": "^2.3.0",
     "sass": "^1.82.0",
     "vue": "latest",
-    "vue-router": "latest"
+    "vue-router": "latest",
+    "vue3-modern-toast": "^1.0.32"
   }
 }

@@ -1,20 +1,20 @@
 <template>
   <div class="top-bar">
-    <Alert ref="alertRef" />
+    <!-- <Alert ref="alertRef" /> -->
 
     <div class="top-bar__auth">
       <template v-if="!authStore.isLoggedIn">
         <form style="display: flex; gap:10px" @submit.prevent="login">
           <input v-model="credentials.username" type="text" placeholder="Nom d'utilisateur" />
           <input v-model="credentials.password" type="password" placeholder="Mot de passe" />
-          <pi-button type="submit" tiny bg-color="#2c3b4c" label="Connexion" icon="fa-solid fa-user-shield"/>
+          <pi-button type="submit" tiny bg-color="#2c3b4c" label="Connexion" icon="fa-solid fa-user-shield" />
           <!-- <button type="submit">Se connecter</button> -->
         </form>
         <p v-if="error">{{ error }}</p>
       </template>
       <template v-else>
         <span>Bienvenue, {{ authStore.username }}</span>
-        <pi-button @click="logout" tiny bg-color="#2c3b4c" label="Déconnexion" :icon="['fas', 'power-off']"/>
+        <pi-button @click="logout" tiny bg-color="#2c3b4c" label="Déconnexion" :icon="['fas', 'power-off']" />
 
       </template>
     </div>
@@ -26,6 +26,9 @@
 import { ref } from "vue";
 import { useRouter } from "vue-router";
 import { useAuthStore } from '../../stores/auth';
+import { EToast } from "vue3-modern-toast";
+import { useAxiosError } from '../../composables/useAxiosError';
+
 // ------------------
 
 // ------ Type ------
@@ -39,12 +42,15 @@ import { useAuthStore } from '../../stores/auth';
 // ------ Const -----
 const authStore = useAuthStore();
 const router = useRouter();
+const { getErrorMessage } = useAxiosError();
+const { $toast } = useNuxtApp()
 // ------------------
 
 // ---- Reactive ----
 const credentials = ref({ username: "", password: "" });
 const error = ref("");
-const alertRef = ref(null);
+// const alertRef = ref(null);
+
 // ------------------
 
 // ---- Computed ----
@@ -58,13 +64,31 @@ const alertRef = ref(null);
 // --- Async Func ---
 const login = async () => {
   try {
-    showMessageAlert('info', 'Chargement...')
+    $toast.show({
+      message: 'Chargement...',
+      type: EToast.INFO,
+      duration: 3000,
+      dismissible: true,
+      icon: '🔄'
+    })
     await authStore.login(credentials.value);
-    showMessageAlert('success', 'Connexion réussis')
+    $toast.show({
+      message: 'Connexion réussis',
+      type: EToast.SUCCESS,
+      duration: 3000,
+      dismissible: true,
+      icon: '✨'
+    })
     router.push('/folder/495e09c7-e09d-481e-9c29-ae62e58fc25b')
 
   } catch (e) {
-    showMessageAlert('error', 'identifiant, ou mot de passe incorrect')
+    $toast.show({
+      message: getErrorMessage(e),
+      type: EToast.ERROR,
+      duration: 3000,
+      dismissible: true,
+      icon: '⛔'
+    })
   }
 };
 
@@ -74,14 +98,16 @@ const login = async () => {
 // ---- Function ----
 const logout = () => {
   authStore.logout();
-  showMessageAlert('success', 'Déconnexion réussis')
+  $toast.show({
+    message: 'Déconnexion réussis',
+    type: EToast.SUCCESS,
+    duration: 3000,
+    dismissible: true,
+    icon: '✨'
+  })
   router.push('/')
-
 };
 
-function showMessageAlert(status: 'success' | 'error' | 'info' | 'warning', message: string) {
-  alertRef.value?.addMessage(status, message);
-};
 // ------------------
 
 // ------ Watch -----
