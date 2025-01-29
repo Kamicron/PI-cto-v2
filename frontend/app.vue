@@ -5,6 +5,7 @@
       <NuxtPage />
     </div>
   </div>
+  <pi-footer />
 </template>
 
 <script setup lang="ts">

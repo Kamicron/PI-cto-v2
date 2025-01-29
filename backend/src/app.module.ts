@@ -11,6 +11,7 @@ import { ImagesModule } from './images/images.module';
 import { PhotosModule } from './photos/photos.module';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
+import { DiskModule } from './disk/disk.module';
 
 @Module({
   imports: [
@@ -36,6 +37,7 @@ import { join } from 'path';
     AuthModule,
     ImagesModule,
     PhotosModule,
+    DiskModule,
   ],
   controllers: [AppController, AuthController],
   providers: [AppService],
