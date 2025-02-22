@@ -3,6 +3,8 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Folder } from './entities/folder.entity';
 import { ConfigService } from '@nestjs/config';
+import * as fs from 'fs';
+import * as path from 'path';
 
 @Injectable()
 export class FolderService {
@@ -115,5 +117,52 @@ export class FolderService {
       folders: simpleFolders,
       photos: photosWithFullUrl
     };
+  }
+
+  private async deletePhysicalFiles(photos: any[]): Promise<void> {
+    for (const photo of photos) {
+      try {
+        const filePath = path.join(process.cwd(), 'uploads', photo.url);
+        if (fs.existsSync(filePath)) {
+          await fs.promises.unlink(filePath);
+        }
+      } catch (error) {
+        console.error(`Failed to delete file ${photo.url}:`, error);
+      }
+    }
+  }
+
+  private async deletePhysicalFolder(folderId: string): Promise<void> {
+    const folderPath = path.join(process.cwd(), 'uploads', folderId);
+    try {
+      if (fs.existsSync(folderPath)) {
+        await fs.promises.rm(folderPath, { recursive: true, force: true });
+      }
+    } catch (error) {
+      console.error(`Failed to delete folder ${folderId}:`, error);
+    }
+  }
+
+  async deleteFolder(id: string): Promise<void> {
+    // Utiliser getFolderContent pour obtenir les photos et sous-dossiers
+    const content = await this.getFolderContent(id);
+    
+    // Supprimer les fichiers physiques des photos
+    await this.deletePhysicalFiles(content.photos);
+
+    // Supprimer le dossier physique principal
+    await this.deletePhysicalFolder(id);
+
+    // Pour chaque sous-dossier
+    for (const subfolder of content.folders) {
+      // Récursivement supprimer le contenu du sous-dossier
+      await this.deleteFolder(subfolder.id);
+    }
+
+    // Supprimer l'entrée du dossier de la base de données
+    const folder = await this.folderRepository.findOne({ where: { id } });
+    if (folder) {
+      await this.folderRepository.remove(folder);
+    }
   }
 }

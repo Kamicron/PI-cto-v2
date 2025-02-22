@@ -65,6 +65,15 @@ export class FolderController {
     return updatedFolder;
   }
 
+  @Delete(':id')
+  async deleteFolder(@Param('id') id: string) {
+    try {
+      await this.folderService.deleteFolder(id);
+      return { message: 'Folder and all its contents have been deleted successfully' };
+    } catch (error) {
+      throw new NotFoundException(`Failed to delete folder: ${error.message}`);
+    }
+  }
 
   // @Get()
   // async getFolders() {

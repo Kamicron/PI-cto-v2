@@ -3,7 +3,7 @@
     <div class="image-card__delete" @click="onDelete">
       <font-awesome-icon :icon="['fas', 'trash-can']" />
     </div>
-    <div class="image-card__container">
+    <div class="image-card__container" @click="$emit('imageClick')">
       <img :src="transparentBgSrc" alt="Transparent background" class="image-card__background" />
       <img :src="src" :alt="alt" class="image-card__img" />
     </div>
@@ -50,23 +50,23 @@ import { useAxiosError } from '../../composables/useAxiosError';
 const props = defineProps({
   id: {
     type: String,
-    default: '',
+    required: true
   },
   src: {
     type: String,
-    required: true,
+    required: true
   },
   alt: {
     type: String,
-    default: '',
+    default: ''
   },
   name: {
     type: String,
-    required: true,
+    required: true
   },
 });
 
-const emit = defineEmits(['delete'])
+const emit = defineEmits(['delete', 'imageClick'])
 // ------------------
 
 // ------ Const -----
