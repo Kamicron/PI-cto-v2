@@ -22,6 +22,8 @@
       <h2>Sous-dossiers</h2>
 
       <PiButton @click="openModal" :icon="['fas', 'folder-plus']" label="Ajouter un dossier" tiny />
+      <PiButton @click="openDeleteModal = true" :icon="['fas', 'trash-can']" label="Supprimer un dossier" tiny bg-color="#dc3545"/>
+
       <div class="SubFolder" v-if="folder.children && folder.children.length">
         <PIFolder v-for="child in folder.children" :key="child.id" :folder="child" />
       </div>
@@ -33,7 +35,8 @@
       <div class="folder__images">
         <image-card class="folder__images--card" v-for="photo in photos" :key="photo.id"
           :src="`${apiUrl}/uploads/${photo.url}`" :alt="photo.name" :name="photo.name" :id="photo.id"
-          @delete="deletePhoto(photo.id)" />
+          @delete="deletePhoto(photo.id)" 
+          @image-click="openPhoto({ src: `${apiUrl}/uploads/${photo.url}`, name: photo.name })"/>
       </div>
     </div>
 
@@ -49,20 +52,46 @@
         <input v-model="nameFolder" type="text" name="nameFolder">
       </div>
       <div class="addFolder__button">
-        <pi-button tiny bg-color="#28a745" @click="saveFolder" :icon="['far', 'floppy-disk']" label="Sauvegarder" />
+        <pi-button tiny bg-color="#28a745" @click="saveFolder" :icon="['fas', 'trash-can']" label="Sauvegarder" />
         <pi-button tiny bg-color="#dc3545" @click="isModalOpen = false" :icon="['fas', 'xmark']" label="Annuler" />
       </div>
     </div>
   </modal>
 
   <modal :isOpen="isOpenPhoto" @close="isOpenPhoto = false">
-    <div class="modalPhoto" v-if="selectedPhoto">
-      <div class="modalPhoto__file">
-        <img :src="selectedPhoto.src" :alt="selectedPhoto.name" class="modalPhoto__file--image" />
+    <div class="photo-modal" v-if="selectedPhoto">
+      <div class="photo-modal__image">
+        <img :src="selectedPhoto.src" :alt="selectedPhoto.name">
       </div>
-      <div class="modalPhoto__information">
-        <p>nom: <span class="modalPhoto__information--value">{{ selectedPhoto.name }}</span></p>
-        <p>url: <span class="modalPhoto__information--value">{{ selectedPhoto.src }}</span></p>
+      <div class="photo-modal__info">
+        <div class="photo-modal__name">
+          <font-awesome-icon :icon="['far', 'image']" />
+          <span>{{ selectedPhoto.name }}</span>
+        </div>
+        <div class="photo-modal__url">
+          <div class="url-container">
+            <font-awesome-icon :icon="['fas', 'link']" />
+            <span class="url-text">{{ selectedPhoto.src }}</span>
+          </div>
+          <pi-button tiny @click="copyLink(selectedPhoto.src)" :icon="['far', 'copy']" label="Copier" />
+        </div>
+      </div>
+    </div>
+  </modal>
+
+  <modal :isOpen="openDeleteModal" @close="openDeleteModal = false" confirmationStyle>
+    <div class="delete-modal">
+      <div class="delete-modal__icon">
+        <font-awesome-icon :icon="['fas', 'triangle-exclamation']" />
+      </div>
+      <div class="delete-modal__content">
+        <h3>Confirmation de suppression</h3>
+        <p>Souhaitez-vous réellement supprimer ce dossier ?</p>
+        <p class="delete-modal__warning">Cette suppression est irréversible. Tous les sous-dossiers et photos seront également supprimés.</p>
+      </div>
+      <div class="delete-modal__actions">
+        <pi-button tiny bg-color="#28a745" @click="openDeleteModal = false" :icon="['fas', 'xmark']" label="Annuler" />
+        <pi-button tiny bg-color="#dc3545" @click="deleteFolder" :icon="['fas', 'trash-can']" label="Supprimer" />
       </div>
     </div>
   </modal>
@@ -122,7 +151,9 @@ const isModifyFolderName = ref<boolean>(false)
 const { $api } = useNuxtApp();
 const { getErrorMessage } = useAxiosError();
 const { $toast } = useNuxtApp()
-
+const openDeleteModal = ref<boolean>(false)
+const isOpenPhoto = ref<boolean>(false)
+const selectedPhoto = ref<{ src: string; name: string }>()
 // ------------------
 
 // ---- Computed ----
@@ -135,18 +166,21 @@ onMounted(async () => {
 });
 // ------------------
 
+
+// ------ Async Functions -----
+
 async function modifyFolderName() {
   try {
     const { data } = await $api.patch(`/folders/${folderId}/name`, { name: folderName.value })
 
     if (!data) {
       $toast.show({
-      message: 'Une erreur est survenue, aucune donnée retournée.',
-      type: EToast.WARNING,
-      duration: 3000,
-      dismissible: true,
-      icon: '✨'
-    })
+        message: 'Une erreur est survenue, aucune donnée retournée.',
+        type: EToast.WARNING,
+        duration: 3000,
+        dismissible: true,
+        icon: '✨'
+      })
       errorMessage.value = 'Une erreur est survenue, aucune donnée retournée.'
       return
     }
@@ -257,6 +291,34 @@ async function fetchFolder() {
     })
   }
 }
+
+
+
+async function deleteFolder() {
+  try {
+    await $api.delete(`/folders/${folderId}`);
+
+    openDeleteModal.value = false
+
+    $toast.show({
+      message: 'Dossier supprimé avec succès',
+      type: EToast.SUCCESS,
+      duration: 3000,
+      dismissible: true,
+      icon: '✨'
+    })
+
+    router.push('/folder/495e09c7-e09d-481e-9c29-ae62e58fc25b')
+  } catch (error) {
+    $toast.show({
+      message: getErrorMessage(error),
+      type: EToast.ERROR,
+      duration: 3000,
+      dismissible: true,
+      icon: '⛔'
+    })
+  }
+}
 // ------------------
 
 // ---- Function ----
@@ -275,9 +337,20 @@ function saveFolder() {
   isModalOpen.value = false
 }
 
-function openPhotoModal(photo: { src: string; name: string }) {
+function openPhoto(photo: { src: string; name: string }) {
   selectedPhoto.value = photo;
   isOpenPhoto.value = true;
+}
+
+function copyLink(link: string) {
+  navigator.clipboard.writeText(link);
+  $toast.show({
+    message: 'Lien copié avec succès',
+    type: EToast.SUCCESS,
+    duration: 3000,
+    dismissible: true,
+    icon: '✨'
+  })
 }
 // ------------------
 
@@ -375,42 +448,119 @@ watch(
   rotate: 180Deg;
 }
 
-.modalPhoto {
+.photo-modal {
   display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 100%;
-  gap: 20px;
+  flex-direction: column;
+  // height: 95vh;
+  // width: 95vw;
+  background: $white-color;
+  position: relative;
 
-  &__file {
-    height: 70vh;
-    width: auto;
+  &__image {
+    flex: 1;
     display: flex;
-    justify-content: center;
     align-items: center;
-
-    margin: 10px;
-
-
-    &--image {
-      max-height: 100%;
+    justify-content: center;
+    background: darken($white-color, 5%);
+    overflow: hidden;
+    max-height: 65vh;
+    
+    img {
       max-width: 100%;
-      border-radius: 8px;
+      max-height: 100%;
       object-fit: contain;
-      border-radius: $border-radius;
-      border: 1px solid $dark-color;
-      box-shadow: $box-shadow;
     }
   }
 
-  &__information {
-    display: flex;
-    flex-direction: column;
-    gap: 5px;
-    align-items: start;
+  &__info {
+    background: $white-color;
+    border-top: 1px solid $gray-light-color;
+    padding: 1rem;
+    font-size: 0.9rem;
+  }
 
-    &--value {
-      color: $dynamic-color;
+  &__name {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: $primary-color;
+    margin-bottom: 0.5rem;
+    font-weight: 500;
+
+    svg {
+      color: $gray-medium-color;
+    }
+  }
+
+  &__url {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+
+    .url-container {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: darken($white-color, 2%);
+      padding: 0.5rem;
+      border-radius: 4px;
+      border: 1px solid $gray-light-color;
+      
+      svg {
+        color: $gray-medium-color;
+      }
+
+      .url-text {
+        color: $dark-color;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+    }
+  }
+}
+
+.delete-modal {
+  padding: 1.5rem;
+  text-align: center;
+
+  &__icon {
+    font-size: 3rem;
+    color: $warning-color;
+    margin-bottom: 1rem;
+  }
+
+  &__content {
+    h3 {
+      color: $primary-color;
+      font-size: 1.5rem;
+      margin-bottom: 1rem;
+      font-weight: 500;
+    }
+
+    p {
+      color: $dark-color;
+      margin-bottom: 0.5rem;
+      font-size: 1rem;
+    }
+  }
+
+  &__warning {
+    color: $danger-color !important;
+    font-size: 0.9rem !important;
+    font-style: italic;
+    margin-top: 1rem !important;
+  }
+
+  &__actions {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+    margin-top: 2rem;
+
+    :deep(.pi-button) {
+      min-width: 120px;
     }
   }
 }
