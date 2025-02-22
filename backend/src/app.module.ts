@@ -31,6 +31,15 @@ import { DiskModule } from './disk/disk.module';
       database: process.env.DB_DATABASE,
       entities: [__dirname + '/**/*.entity{.ts,.js}'],
       synchronize: true,
+      // Configuration de la connexion
+      keepConnectionAlive: true,
+      extra: {
+        connectionLimit: 10,
+        connectTimeout: 60000,
+        acquireTimeout: 60000,
+        waitForConnections: true,
+        queueLimit: 0
+      }
     }),
     UserModule,
     FolderModule,

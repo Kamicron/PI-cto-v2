@@ -25,7 +25,13 @@
       <PiButton @click="openDeleteModal = true" :icon="['fas', 'trash-can']" label="Supprimer un dossier" tiny bg-color="#dc3545"/>
 
       <div class="SubFolder" v-if="folder.children && folder.children.length">
-        <PIFolder v-for="child in folder.children" :key="child.id" :folder="child" />
+        <PIFolder 
+          v-for="child in folder.children" 
+          :key="child.id" 
+          :folder="child"
+          @deleted="handleFolderDeleted"
+          @renamed="handleFolderRenamed"
+        />
       </div>
       <p v-else>Aucun sous-dossier.</p>
     </div>
@@ -322,6 +328,21 @@ async function deleteFolder() {
 // ------------------
 
 // ---- Function ----
+function handleFolderDeleted(folderId: string) {
+  if (folder.value) {
+    folder.value.children = folder.value.children.filter(child => child.id !== folderId);
+  }
+}
+
+function handleFolderRenamed(updatedFolder: IFolder) {
+  if (folder.value) {
+    const index = folder.value.children.findIndex(child => child.id === updatedFolder.id);
+    if (index !== -1) {
+      folder.value.children[index] = { ...updatedFolder };
+    }
+  }
+}
+
 function goToParentFolder() {
   if (folder.value.parent) {
     router.push(`/folder/${folder.value.parent.id}`)
