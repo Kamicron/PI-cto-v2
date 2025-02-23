@@ -2,12 +2,14 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Folder } from './entities/folder.entity';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class FolderService {
   constructor(
     @InjectRepository(Folder)
     private folderRepository: Repository<Folder>,
+    private configService: ConfigService,
   ) {}
 
   async create(name: string, parentId?: string): Promise<Folder> {
@@ -84,5 +86,34 @@ export class FolderService {
     }
 
     return folder;
+  }
+
+  async getFolderContent(folderId: string): Promise<{ folders: any[], photos: any[] }> {
+    const folder = await this.folderRepository.findOne({
+      where: { id: folderId },
+      relations: ['children', 'photos'],
+    });
+
+    if (!folder) {
+      throw new Error('Folder not found');
+    }
+
+    const baseUrl = this.configService.get('BACK_URL') || 'http://localhost:5001';
+
+    const simpleFolders = folder.children.map(child => ({
+      id: child.id,
+      name: child.name,
+      createdAt: child.createdAt
+    }));
+
+    const photosWithFullUrl = folder.photos.map(photo => ({
+      ...photo,
+      url: `${baseUrl}/uploads/${photo.url}`
+    }));
+
+    return {
+      folders: simpleFolders,
+      photos: photosWithFullUrl
+    };
   }
 }

@@ -40,6 +40,10 @@ export class FolderController {
     return folder;
   }
 
+  @Get(':id/content')
+  async getFolderContent(@Param('id') id: string) {
+    return this.folderService.getFolderContent(id);
+  }
 
   @Patch(':id/name')
   async updateFolderName(
