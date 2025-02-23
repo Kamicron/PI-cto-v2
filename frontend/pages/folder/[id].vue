@@ -308,7 +308,7 @@ async function deleteFolder() {
       icon: '✨'
     })
 
-    router.push('/folder/495e09c7-e09d-481e-9c29-ae62e58fc25b')
+    router.push('/folder/6c94b799-0dd9-46f6-b503-d8e9bf651916')
   } catch (error) {
     $toast.show({
       message: getErrorMessage(error),
