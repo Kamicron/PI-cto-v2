@@ -11,7 +11,7 @@
 import type { PropType } from 'vue';
 
 // ----- Define Props -----
-const props = defineProps({
+defineProps({
   show: {
     type: Boolean,
     required: true
