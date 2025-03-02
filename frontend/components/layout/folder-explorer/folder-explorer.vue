@@ -10,7 +10,6 @@
 
           <input   
           v-if="isEditing[folder.id]"
-          ref="inputRef" 
           class="folder-name input" 
           type="text"
           v-model="folderName[folder.id]"
@@ -45,22 +44,27 @@
 <script setup lang="ts">
 const { $api } = useNuxtApp()
 
-const props = defineProps<{ 
-  folders: any[], 
-  depth?: number 
-}>()
+defineProps({
+  folders: { type: Array as PropType<IFolder[]>, default: () => [] },
+  depth: { type: Number, default: null }
+})
 
 const openFolders = ref<Record<number, boolean>>({})
 const isEditing = ref<Record<number, boolean>>({})
 const folderName = ref<Record<number, string>>({})
-const inputRef = ref()
+const currentEditing = ref<number | null>(null)
 
 function toggleFolder(folderId: number) {
   openFolders.value[folderId] = !openFolders.value[folderId]
 }
 
-async function toggleEdit(folderId: number) {
+function toggleEdit(folderId: number) {
+  if (currentEditing.value !== null && currentEditing.value !== folderId) {
+    isEditing.value[currentEditing.value] = false
+  }
+  
   isEditing.value[folderId] = true
+  currentEditing.value = folderId
 }
 
 function cancelEdit(folderId: number) {
@@ -68,20 +72,19 @@ function cancelEdit(folderId: number) {
 }
 
 async function editFolder(folderId: number) {
-  // Envoi de la mise à jour à l'API
   const { data, error } = await $api.patch(`/folders/${folderId}/name`, { name: props.folders.find(folder => folder.id === folderId)?.name })
 
   if (error) {
     console.error("Erreur lors de la mise à jour du nom", error)
   } else {
     console.log('Nom mis à jour avec succès', data)
-    // Quitte le mode édition après la sauvegarde
     isEditing.value[folderId] = false
   }
 }
 
 function deleteFolder(folderId: number) {
   console.log('Dossier supprimé', folderId)
+  openConfirmModal.value = true
 }
 
 </script>
