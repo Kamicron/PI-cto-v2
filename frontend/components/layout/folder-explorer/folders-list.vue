@@ -1,6 +1,8 @@
 <template>
   <div class="folders-list">
-    <folder-explorer :folders="folders"/>
+    <div class="folders-list__content">
+      <folder-explorer :folders="folders" :depth="2"/>
+    </div>
   </div>
 </template>
   
@@ -10,9 +12,14 @@ defineProps<{ folders: any[] }>()
   
 <style lang='scss' scoped>
 .folders-list {
+  position: relative;
   width: 320px;
   height: calc(100vh - 75px);
-  overflow: hidden;
-  border: solid;
+  box-shadow: 0 0 3px #000 ;
+  padding: 10px;
+  &__content {
+    width: 100%;
+    overflow-x: scroll;
+  }
 }
 </style>
