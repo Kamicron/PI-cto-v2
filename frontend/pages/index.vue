@@ -19,8 +19,10 @@
 
     <h2>Sous-dossiers</h2>
     <div class="SubFolder" v-if="folder.children && folder.children.length">
-      <PIFolder v-for="child in folder.children" :key="child.id" :folder="child" />
-
+      <PIFolder
+        title="Click droit pour modifier ou supprimer le dossier"
+        v-for="child in folder.children" :key="child.id" :folder="child" 
+      />
     </div>
     <p v-else>Aucun sous-dossier.</p>
 
@@ -45,6 +47,7 @@ import { useAuthStore } from "@/stores/auth";
 import { watch } from "vue";
 import { EToast } from "vue3-modern-toast";
 import { useAxiosError } from '../composables/useAxiosError';
+import PIFolder from "@/components/cards/PI-folder.vue";
 // ------------------
 
 // ------ Type ------

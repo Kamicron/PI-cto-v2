@@ -101,6 +101,7 @@ freeSpace.value = parseFloat((Number(data.free) / (1024 ** 3)).toFixed(2)); // b
   background-color: white;
   border-radius: $border-radius;
   box-shadow: $box-shadow;
+  z-index: 2;
 
   &__information {
     &--value {

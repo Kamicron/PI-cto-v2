@@ -25,8 +25,9 @@
       <PiButton @click="openDeleteModal = true" :icon="['fas', 'trash-can']" label="Supprimer un dossier" tiny bg-color="#dc3545"/>
 
       <div class="SubFolder" v-if="folder.children && folder.children.length">
-        <PIFolder 
+        <PIFolder
           v-for="child in folder.children" 
+          title="Click droit pour modifier ou supprimer le dossier"
           :key="child.id" 
           :folder="child"
           @deleted="handleFolderDeleted"
@@ -527,6 +528,7 @@ watch(
       padding: 0.5rem;
       border-radius: 4px;
       border: 1px solid $gray-light-color;
+      max-width: 40vw;
       
       svg {
         color: $gray-medium-color;
@@ -557,7 +559,7 @@ watch(
       color: $primary-color;
       font-size: 1.5rem;
       margin-bottom: 1rem;
-      font-weight: 500;
+      font-weight: $font-weight-medium;
     }
 
     p {
@@ -568,10 +570,8 @@ watch(
   }
 
   &__warning {
-    color: $danger-color !important;
-    font-size: 0.9rem !important;
-    font-style: italic;
-    margin-top: 1rem !important;
+    color: $dark-danger-color !important;
+    font-weight: $font-weight-bold !important;
   }
 
   &__actions {
