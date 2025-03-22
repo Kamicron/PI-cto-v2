@@ -1,70 +1,39 @@
-<template>
-  <button @click="showToastSuccess">Show Toast Success</button>
-  <button @click="showToastError">Show Toast Error</button>
-  <button @click="showToastWarning">Show Toast Warning</button>
-  <button @click="showToastInfo">Show Toast Info</button>
 
+<template>
+  <div class="card flex flex-wrap justify-center items-end gap-4 test">
+      <!-- <FloatLabel>
+          <AutoComplete v-model="value1" inputId="over_label" :suggestions="items" @complete="search" />
+          <label for="over_label">Over Label</label>
+      </FloatLabel>
+
+      <FloatLabel variant="in">
+          <AutoComplete v-model="value2" inputId="in_label" :suggestions="items" @complete="search" variant="filled" />
+          <label for="in_label">In Label</label>
+      </FloatLabel> -->
+
+      <FloatLabel variant="on">
+          <AutoComplete v-model="value3" inputId="on_label" :suggestions="items" @complete="search" />
+          <label for="on_label">On Label</label>
+      </FloatLabel>
+  </div>
 </template>
 
-<script setup lang="ts">
-import { EToast } from 'vue3-modern-toast'
+<script setup>
+import { ref } from "vue";
 
-const { $toast } = useNuxtApp()
+const value1 = ref('');
+const value2 = ref('');
+const value3 = ref('');
+const items = ref([]);
 
-function showToastSuccess() {
-  $toast.show({
-    message: 'Success message',
-    type: EToast.SUCCESS,
-    duration: 3000,
-    dismissible: true,
-    icon: '✨'
-  })
+const search = (event) => {
+  items.value = [...Array(10).keys()].map((item) => event.query + '-' + item);
 }
-
-function showToastError() {
-  $toast.show({
-    message: 'Error message',
-    type: EToast.ERROR,
-    duration: 3000,
-    dismissible: true,
-    icon: '⛔'
-  })
-}
-
-function showToastWarning() {
-  $toast.show({
-    message: 'Warning message',
-    type: EToast.WARNING,
-    duration: 3000,
-    dismissible: true,
-    icon: '⚠'
-  })
-}
-
-function showToastInfo() {
-  $toast.show({
-    message: 'Info message',
-    type: EToast.INFO,
-    duration: 3000,
-    dismissible: true,
-    icon: ''
-  })
-}
-
-
 </script>
 
-<style lang='scss' scoped>
-button {
-  padding: 10px 20px;
-  background-color: #4299E1;
-  color: white;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  
-  &:hover {
-    background-color: #2B6CB0;
-  }
+<style lang="scss" scoped>
+.test {
+  margin: 200px;  
 }
 </style>
+

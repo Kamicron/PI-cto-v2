@@ -14,13 +14,19 @@
     "@fortawesome/vue-fontawesome": "3.x",
     "@nuxtjs/google-fonts": "^3.2.0",
     "@pinia/nuxt": "^0.9.0",
+    "@primeuix/themes": "^1.0.0",
+    "@primevue/forms": "^4.3.2",
     "axios": "^1.7.9",
     "modern-css-reset": "^1.4.0",
     "nuxt": "^3.14.1592",
     "pinia": "^2.3.0",
+    "primevue": "^4.3.2",
     "sass": "^1.82.0",
     "vue": "latest",
     "vue-router": "latest",
     "vue3-modern-toast": "^1.0.32"
+  },
+  "devDependencies": {
+    "@primevue/nuxt-module": "^4.3.2"
   }
 }
