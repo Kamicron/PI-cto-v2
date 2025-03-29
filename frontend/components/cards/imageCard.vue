@@ -15,8 +15,9 @@
         @blur="cancelEditing" placeholder="Nouveau nom" />
       <div class="link-container">
         <NuxtLink class="link-container__link" :to="src" :title="src" target="_blank">{{ shortUrl }}</NuxtLink>
-        <pi-button class="link-container__copy-buton" @click="copyLink(srcfile)" label="Copier" tiny
-          :icon="['far', 'copy']" />
+
+        <Button @click="copyLink(srcfile)" type="button" icon="pi pi-copy"/>
+
       </div>
       <div v-if="copiedMessage" class="image-card__footer--dialog">Lien copié !</div>
     </div>
@@ -27,8 +28,10 @@
       <p>{{ warningMessage }}</p>
 
       <div class="modal-actions__button">
-        <pi-button tiny bg-color="#28a745" @click="confirmRename" :icon="['far', 'floppy-disk']" label="Sauvegarder" />
-        <pi-button tiny bg-color="#dc3545" @click="cancelRename" :icon="['fas', 'xmark']" label="Annuler" />
+        <!-- <pi-button tiny bg-color="#28a745" @click="confirmRename" :icon="['far', 'floppy-disk']" label="Sauvegarder" />
+        <pi-button tiny bg-color="#dc3545" @click="cancelRename" :icon="['fas', 'xmark']" label="Annuler" /> -->
+        <Button @click="copyLink(srcfile)" type="button" icon="pi pi-copy" label="Sauvegarder"/>
+        <Button @click="confirmRename" type="button" icon="pi pi-check" label="Annuler"/>
       </div>
 
     </div>
@@ -225,6 +228,7 @@ function cancelRename() {
 </script>
 
 <style lang="scss" scoped>
+
 .image-card {
   position: relative;
   width: 280px;

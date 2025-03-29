@@ -10,6 +10,7 @@ async function bootstrap() {
       'https://pi-cto.top',
       'http://92.141.130.187',
       'http://localhost:3000',
+      'http://localhost:3001',
     ],
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
     credentials: true,

@@ -3,7 +3,7 @@
     <div class="upload-photo__dropzone" @dragover.prevent="isDragging = true" @dragleave.prevent="isDragging = false"
       @drop.prevent="handleDrop" :class="{ 'upload-photo__dropzone--active': isDragging }">
       <p>Déposez vos fichiers ici ou</p>
-      <pi-button label="parcourir" @click="triggerFilePicker" :icon="['fas', 'magnifying-glass']" /> 
+      <Button @click="triggerFilePicker" type="button" icon="pi pi-upload" label="Téléverser" />
       <input ref="fileInput" type="file" class="upload-photo__file-input" multiple @change="handleFileSelect" />
     </div>
 
@@ -15,6 +15,7 @@
             class="upload-photo__preview-img" />
           <p>{{ file.name }}</p>
           <pi-button @click="removeFile(index)" label="Supprimer" :bg-color="'#dc3545'" :icon="['fas', 'trash-can']"/>
+          <Button @click="removeFile(index)" type="button" icon="pi pi-trash" label="Supprimer" />
         </li>
       </ul>
     </div>
@@ -27,6 +28,21 @@
     <pi-button class="upload-photo__submit" :label="isUploading ? 'Téléversement en cours...' : 'Téléverser'"
       :icon="['fas', 'upload']" :bgColor="isUploading || !files.length ? '#a0a0a0' : '#3f556d'" @click="uploadFiles" />
 
+    <div class="uploader">
+        <div class="actions">
+            <Button 
+                icon="pi pi-upload" 
+                label="Télécharger" 
+                @click="handleUpload"
+            />
+            <Button 
+                icon="pi pi-times" 
+                label="Annuler" 
+                severity="error"
+                @click="handleCancel"
+            />
+        </div>
+    </div>
 
     <p v-if="errorMessage" class="upload-photo__error">{{ errorMessage }}</p>
   </div>
@@ -153,6 +169,14 @@ function removeFile(index: number) {
   files.value.splice(index, 1);
   preview.value.splice(index, 1);
 }
+
+const handleUpload = () => {
+    // Logique de téléchargement
+}
+
+const handleCancel = () => {
+    // Logique d'annulation
+}
 // ------------------
 
 
@@ -225,5 +249,13 @@ function removeFile(index: number) {
     color: red;
     margin-top: 10px;
   }
+}
+
+.uploader {
+    .actions {
+        display: flex;
+        gap: 1rem;
+        margin: 1rem 0;
+    }
 }
 </style>

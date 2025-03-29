@@ -23,6 +23,7 @@
     "@fortawesome/free-solid-svg-icons": "^6.7.1",
     "@fortawesome/vue-fontawesome": "^3.0.8",
     "@primeuix/themes": "^1.0.0",
+    "primeicons": "^7.0.0",
     "primevue": "^4.3.2",
     "vue3-modern-toast": "^1.0.15"
   }
